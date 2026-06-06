@@ -202,11 +202,11 @@ tests: threads
 all: library tests
 demo: $(BUILD_DIR)/demo
 	@if [[ "$(DEBUG)" != "true" ]]; then \
-	  strip --strip-unneeded "$(BUILD_DIR)/demo"; \
+	  strip --strip-unneeded "$<"; \
 	fi
 threads: $(BUILD_DIR)/threadTest
 	@if [[ "$(DEBUG)" != "true" ]]; then \
-	  strip --strip-unneeded "$(BUILD_DIR)/threadTest"; \
+	  strip --strip-unneeded "$<"; \
 	fi
 debug:
 	@DEBUG="true" $(MAKE) --no-print-directory build
