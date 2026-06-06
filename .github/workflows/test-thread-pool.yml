@@ -1,0 +1,49 @@
+# This workflow will build and test the thread pool
+name: Thread pool tests
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: '**'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
+        compiler: [{package: g++-16, command: g++-16}, {package: clang-19, command: clang++-19}]
+        stdlib: [libstdc++-16-dev]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends make pkg-config build-essential
+        sudo apt-get install ${{ matrix.compiler.package }} ${{ matrix.stdlib }}
+
+    - name: (DEBUG + ASan + UBSan) Build tests
+      run: |
+        make clean
+        CXX="${{ matrix.compiler.command }}" DEBUG="true" make tests -j$(nproc)
+
+    - name: (DEBUG + ASan + UBSan) Run thread tester
+      run: |
+        /launch.sh --threads
+
+    - name: (DEBUG + TSan) Build thread tester
+      run: |
+        make clean
+        CXX="${{ matrix.compiler.command }}" CHECK_THREADS="true" DEBUG="true" make threads -j$(nproc)
+
+    - name: (DEBUG + TSan) Run thread tester
+      run: |
+        ./launch.sh --threads

@@ -1,0 +1,51 @@
+# This workflow will build the library and tests
+name: Whole project compilation
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: '**'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
+        compiler: [{package: g++-16, command: g++-16}, {package: clang-19, command: clang++-19}]
+        stdlib: [libstdc++-16-dev]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends make pkg-config build-essential
+        sudo apt-get install ${{ matrix.compiler.package }} ${{ matrix.stdlib }}
+
+    - name: Test shared library build target
+      run: |
+        CXX="${{ matrix.compiler.command }}" make library -j$(nproc)
+
+    - name: Test threads build target
+      run: |
+        CXX="${{ matrix.compiler.command }}" make threads -j$(nproc)
+
+    - name: Verify built objects
+      run: |
+        ls build/threadTest build/libtangle.so
+
+    - name: Test library install target
+      run: |
+        sudo make install
+
+    - name: Test headers install target
+      run: |
+        sudo make headers

@@ -1,0 +1,34 @@
+# This workflow will lint the project using clang-tidy
+name: Clang-tidy linting
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: '**'
+
+jobs:
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
+        options: [DEBUG="false" FAST="false", DEBUG="true" FAST="true"]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.14'
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends make pkg-config build-essential
+        sudo apt-get install clang-tidy-22
+
+    - name: Run the global linting target
+      run: |
+        TIDY="clang-tidy-22" ${{ matrix.options }} make lint_all -j$(nproc)
