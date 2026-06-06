@@ -1,0 +1,81 @@
+# Contributing to libtangle
+## Overview:
+  - Contributions and pull requests are very welcome, this project can always use extra help
+    - All contributions must be allowed under the license (`LICENCE.md`)
+    - All contributions must abide by the Code of Conduct (`docs/CODE_OF_CONDUCT.md`)
+  - The general process to contribute would be as follows:
+    - Fork the project, optionally create a branch from that
+    - Make your change and write a sensible commit message
+    - Ensure the project builds without any warnings, passes the linter and all workflows pass
+    - Create a merge request, and follow the template
+  - The aim of this document is to provide technical information, not be a general how-to guide
+
+## Build system:
+  - ### Targets:
+    - `build`, `all`, `tests`, `debug`, `library`, `threads` and `lint*` support `-j[CORE COUNT]`
+    - `make build` - Builds the demo
+    - `make all` - Builds the demo and the tests
+    - `make tests` - Builds the tests
+    - `make debug` - Runs `make build` in debug mode
+    - `make library` - Builds `build/libtangle.so`
+    - `make threads` - Builds a test program for the thread pool
+    - `make install` - Installs `libtangle.so` to the system
+      - The install path can be configured, by setting the environment variable `INSTALL_DIR`
+    - `make headers` - Installs libtangle headers and `tangle.pc` to the system
+      - The install path can be configured, by setting the environment variable `HEADER_DIR`
+    - `make uninstall` - Removes installed library and headers
+      - Custom install locations must be specified the same way as they were installed
+    - `make lint` - Lints the engine and calling code using `clang-tidy`
+      - `make lint_tests` - Only lints the test implementations in `src/tests/`
+      - `make lint_all` - Lints everything
+    - `make clean` - Cleans the build area (`build/`)
+  - ### Flags:
+    - `DEBUG`: `true / false` - Compiles the target in debug mode
+    - `ARCH`: `[microarchitecture]` - Target a specific microarchitecture, defaults to `native`
+    - `USE_LLVM_CPP`: `true / false` - Link against `libc++` instead of `libstdc++`
+    - `USE_SYSTEM`: `true / false` - Use the system copy of libtangle's headers, library and package config for the client code
+    - `CHECK_ADDRESS`: `true / false` - Enables `-fsanitize=address` for runtime memory error checking
+    - `CHECK_UNDEFINED`: `true / false` - Enables `-fsanitize=undefined` for runtime undefined behaviour checking
+    - `CHECK_THREADS`: `true / false` - Enables `-fsanitize=thread` for runtime data race checking 
+    - `CHECK_TYPES`: `true / false` - Enables `-fsanitize=type` for runtime type aliasing violation checking
+    - `CHECK_MEMORY`: `true / false` - Enables `-fsanitize=memory` for runtime uninitialised read checking
+    - `CHECK_LEAKS`: `true / false` - Enables `-fsanitize=leak` for runtime leak checking
+    - `VALGRIND_SAFE`: `true / false` - Disable arguments that cause issues for valgrind
+      - Use `./launch.sh [OPTIONS] --valgrind` to run the engine through valgrind
+      - Use `VALGRIND` to choose a different path for the `valgrind` binary
+    - `BUILD_DIR` - Use a different directory for temporary build system files
+    - `PREFIX_DIR` - Change the base install path
+      - `INSTALL_DIR` - Install `libtangle.so` and `tangle.pc` to a different location
+      - `HEADER_DIR` - Install libtangle headers to a different location
+      - `PKG_CONF_DIR` - Install `tangle.pc` to a different location
+    - `TIDY` - Override default choice for `clang-tidy`
+
+## Debug mode:
+  - To compile in debug mode, use `make debug` or `DEBUG=true make ...`
+    - This enables additional checks and debug output from the engine
+    - Makes use of `-fsanitize=address,undefined` and `-fno-omit-frame-pointer`
+      - `-fsanitize=address,undefined` will be skipped if explicitly disabled, or incompatible options are used
+    - Each object is compiled with debugging symbols, and `strip` is skipped
+      - `-Og` is used as the optimisation level
+  - Run `make clean` whenever swapping between regular and debug builds
+  - `DEBUG=true make ...` can be used on any target, and only rebuilds changed objects
+    - If an initial `make clean` isn't used, the build may fail or produce broken results
+    - `make clean` isn't required for linting targets, but this doesn't mean that regular and debug linting passes can be done in parallel
+
+## Miscellaneous help:
+  - Spellings should use British English for both documentation and code
+  - New or modified build system targets need to be documented in the "Build system" section
+    - Non-development related targets should also be documented in `README.md`
+  - Any scripts should be placed in `scripts/`
+  - Header includes should use the following order:
+    - Standard library headers
+    - C++ library headers
+    - C library headers, in an `extern "C" {}`
+    - The header the file is providing symbols for
+    - Internal headers at the same level / deeper than the current file
+    - Internal headers at a higher level than the current file
+    - For headers, the header with the corresponding public interface
+  - Within each category the headers should be ordered alphabetically
+  - Any internal symbols should be placed in a `namespace TANGLE_INTERNAL tangle {}`
+    - Symbol declarations should happen inside a nested `namespace internal {}`
+  - Any exposed symbols should be placed in a `namespace TANGLE_EXPOSED tangle {}`
