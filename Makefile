@@ -96,14 +96,12 @@ ifneq ($(VALGRIND_SAFE),true)
 endif
 
 #Fetch library dependencies and flags from tangle.pc
-REQUIRES_PRIVATE = $(shell sed -ne 's/^.*Requires.private: //p' data/tangle.pc)
 LDFLAGS_PRIVATE = $(shell sed -ne 's/^.*Libs.private: //p' data/tangle.pc)
 CFLAGS_PRIVATE = $(shell sed -ne 's/^.*Cflags.private: //p' data/tangle.pc)
 
 #Library arguments
 LIBRARY_CXXFLAGS := $(CXXFLAGS) -fpic $(CFLAGS_PRIVATE)
-LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE) \
-                   $(shell pkg-config --libs $(REQUIRES_PRIVATE))
+LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE)
 
 #Client arguments
 ifneq ($(USE_SYSTEM),true)
