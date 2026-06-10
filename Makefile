@@ -258,5 +258,5 @@ lint_all: lint lint_tests
 # Utility / support phony recipes
 # --------------------------------
 
-clean: cache
+clean:
 	@rm -rfv "$(BUILD_DIR)"
