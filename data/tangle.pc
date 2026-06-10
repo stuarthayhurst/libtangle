@@ -1,0 +1,14 @@
+prefix=/usr/local
+libdir=${prefix}/lib/tangle
+includedir=${prefix}/include
+
+Name: libtangle
+Description: C++ library to provide a thread pool and synchronised output helpers
+URL: https://github.com/stuarthayhurst/libtangle
+Version: 0.0.1
+License: MIT
+Maintainer: Stuart Hayhurst (https://github.com/stuarthayhurst/libtangle)
+Cflags: -I${includedir}
+Libs: -L${libdir} -ltangle
+Cflags.private: -pthread
+Libs.private: -latomic -lpthread
