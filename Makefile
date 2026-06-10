@@ -208,6 +208,8 @@ threads: $(BUILD_DIR)/threadTest
 	fi
 debug:
 	@DEBUG="true" $(MAKE) --no-print-directory build
+debug-all:
+	@DEBUG="true" $(MAKE) --no-print-directory all
 
 
 # --------------------------------

@@ -17,6 +17,7 @@
     - `make all` - Builds the demo and the tests
     - `make tests` - Builds the tests
     - `make debug` - Runs `make build` in debug mode
+    - `make debug-all` - Runs `make all` in debug mode
     - `make library` - Builds `build/libtangle.so`
     - `make threads` - Builds a test program for the thread pool
     - `make install` - Installs `libtangle.so` to the system
@@ -51,7 +52,7 @@
     - `TIDY` - Override default choice for `clang-tidy`
 
 ## Debug mode:
-  - To compile in debug mode, use `make debug` or `DEBUG=true make ...`
+  - To compile in debug mode, use `make debug`, `make debug-all` or `DEBUG=true make ...`
     - This enables additional checks and debug output from the engine
     - Makes use of `-fsanitize=address,undefined` and `-fno-omit-frame-pointer`
       - `-fsanitize=address,undefined` will be skipped if explicitly disabled, or incompatible options are used
