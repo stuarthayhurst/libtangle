@@ -37,7 +37,7 @@ jobs:
 
     - name: (DEBUG + ASan + UBSan) Run thread tester
       run: |
-        /launch.sh
+        ./launch.sh
 
     - name: (DEBUG + TSan) Build thread tester
       run: |
