@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-26.04, ubuntu-26.04-arm]
-        options: [DEBUG="false" FAST="false", DEBUG="true" FAST="true"]
+        options: [DEBUG="false", DEBUG="true"]
     runs-on: ${{ matrix.os }}
 
     steps:
