@@ -190,7 +190,7 @@ $(OBJECT_DIR)/tangle/%.$(DEBUG_LINT_STRING): ./src/tangle/% .clang-tidy $(TANGLE
 	@touch "$@"
 
 
-.PHONY: build tests all threads debug library headers install uninstall lint_compile_commands run_lint run_lint_tests lint lint_tests lint_all clean
+.PHONY: build tests all threads debug debug-all library headers install uninstall lint_compile_commands run_lint run_lint_tests lint lint_tests lint_all clean
 
 
 # --------------------------------
