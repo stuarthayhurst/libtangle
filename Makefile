@@ -110,7 +110,7 @@ ifneq ($(USE_SYSTEM),true)
   PROJECT_ROOT = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
   PKG_CONF_ARGS = "--define-variable=tanglelibdir=$(BUILD_DIR)" \
                   "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
-                  "--with-path=$(PROJECT_ROOT)"
+                  "--with-path=$(PROJECT_ROOT)/data"
   PKG_CONF_FILE = data/tangle.pc
 else
   PKG_CONF_FILE = tangle
