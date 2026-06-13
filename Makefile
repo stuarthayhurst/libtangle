@@ -108,8 +108,8 @@ LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE)
 #Client arguments
 ifneq ($(USE_SYSTEM),true)
   PROJECT_ROOT = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-  PKG_CONF_ARGS = "--define-variable=libdir=$(BUILD_DIR)" \
-                  "--define-variable=includedir=$(PROJECT_ROOT)src/include" \
+  PKG_CONF_ARGS = "--define-variable=tanglelibdir=$(BUILD_DIR)" \
+                  "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
                   "--with-path=$(PROJECT_ROOT)"
   PKG_CONF_FILE = data/tangle.pc
 else
