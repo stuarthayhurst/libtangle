@@ -39,7 +39,7 @@ ROOT_OBJECTS = $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(ROOT_OBJECTS_SOURCE
 
 #Global arguments
 CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -std=c++23
-CXXFLAGS += -fno-math-errno -flto=auto
+CXXFLAGS += -flto=auto
 
 ifndef ARCH
   CXXFLAGS += -march=native
