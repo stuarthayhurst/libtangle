@@ -26,7 +26,7 @@
       - The install path can be configured, by setting the environment variable `HEADER_DIR`
     - `make uninstall` - Removes installed library and headers
       - Custom install locations must be specified the same way as they were installed
-    - `make lint` - Lints the engine and calling code using `clang-tidy`
+    - `make lint` - Lints the library and tests using `clang-tidy`
       - `make lint_tests` - Only lints the test implementations in `src/tests/`
       - `make lint_all` - Lints everything
     - `make clean` - Cleans the build area (`build/`)
@@ -42,7 +42,7 @@
     - `CHECK_MEMORY`: `true / false` - Enables `-fsanitize=memory` for runtime uninitialised read checking
     - `CHECK_LEAKS`: `true / false` - Enables `-fsanitize=leak` for runtime leak checking
     - `VALGRIND_SAFE`: `true / false` - Disable arguments that cause issues for valgrind
-      - Use `./launch.sh [OPTIONS] --valgrind` to run the engine through valgrind
+      - Use `./launch.sh [OPTIONS] --valgrind` to run the tests through valgrind
       - Use `VALGRIND` to choose a different path for the `valgrind` binary
     - `BUILD_DIR` - Use a different directory for temporary build system files
     - `PREFIX_DIR` - Change the base install path
@@ -53,7 +53,7 @@
 
 ## Debug mode:
   - To compile in debug mode, use `make debug`, `make debug-all` or `DEBUG=true make ...`
-    - This enables additional checks and debug output from the engine
+    - This enables additional checks and debug output from the library
     - Makes use of `-fsanitize=address,undefined` and `-fno-omit-frame-pointer`
       - `-fsanitize=address,undefined` will be skipped if explicitly disabled, or incompatible options are used
     - Each object is compiled with debugging symbols, and `strip` is skipped

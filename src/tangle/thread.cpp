@@ -25,10 +25,8 @@ namespace tangle {
     }
 
     /*
-     - Create or join a thread pool, without initialising the renderer
-       - The engine will share the thread pool if it's not destroyed before the
-         renderer is initialised
-     - destroyThreadPool() is still safe to call after renderer initialisation
+     - Create or increase the reference counter on the thread pool
+     - Use destroyThreadPool() to clean up afterwards
      - Returns false if no thread pool exists or was created, otherwise true
     */
     bool createThreadPool(unsigned int threadCount) {
@@ -44,8 +42,8 @@ namespace tangle {
     /*
      - Destroy or exit the current thread pool
      - Must be called once per creation / connection
-     - Safe to be called after renderer initialisation
      - If jobs in the queue may more submit work, they must be completed before calling this
+     - This will only block until the jobs complete if it's the final user of the pool
     */
     void destroyThreadPool() {
       if (poolUsers == 0) {
