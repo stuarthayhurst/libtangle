@@ -242,6 +242,7 @@ uninstall:
 	@rm -fv "$(PKG_CONF_DIR)/tangle.pc"
 	@if [[ -d "$(INSTALL_DIR)/tangle" ]]; then rm -di "$(INSTALL_DIR)/tangle"; fi
 	@if [[ -d "$(HEADER_DIR)/tangle" ]]; then rm -rf "$(HEADER_DIR)/tangle"; fi
+	ldconfig
 
 
 # --------------------------------
