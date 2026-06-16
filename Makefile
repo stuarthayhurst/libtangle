@@ -6,7 +6,7 @@ OBJECT_DIR := $(BUILD_DIR)/objects
 PREFIX_DIR ?= /usr/local
 INSTALL_DIR ?= $(PREFIX_DIR)/lib
 HEADER_DIR ?= $(PREFIX_DIR)/include
-PKG_CONF_DIR ?= $(INSTALL_DIR)/pkgconfig
+PKG_CONF_INSTALL_DIR ?= $(INSTALL_DIR)/pkgconfig
 LIBRARY_VERSION := $(shell pkg-config --modversion data/tangle.pc)
 LIBRARY_NAME := libtangle.so.$(LIBRARY_VERSION)
 
@@ -107,16 +107,16 @@ LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE)
 #Client arguments
 ifneq ($(USE_SYSTEM),true)
   PROJECT_ROOT := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-  PKG_CONF_ARGS := "--define-variable=tanglelibdir=$(BUILD_DIR)" \
-                   "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
-                   "--with-path=$(PROJECT_ROOT)/data"
-  PKG_CONF_FILE := data/tangle.pc
+  CLIENT_PKG_CONF_ARGS := "--define-variable=tanglelibdir=$(BUILD_DIR)" \
+                          "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
+                          "--with-path=$(PROJECT_ROOT)/data"
+  CLIENT_PKG_CONF_FILE := data/tangle.pc
 else
-  PKG_CONF_FILE := tangle
+  CLIENT_PKG_CONF_FILE := tangle
 endif
 
-CLIENT_CXXFLAGS := $(CXXFLAGS) $(shell pkg-config $(PKG_CONF_ARGS) --cflags $(PKG_CONF_FILE))
-CLIENT_LDFLAGS := $(LDFLAGS) $(shell pkg-config $(PKG_CONF_ARGS) --libs $(PKG_CONF_FILE))
+CLIENT_CXXFLAGS := $(CXXFLAGS) $(shell pkg-config $(CLIENT_PKG_CONF_ARGS) --cflags $(CLIENT_PKG_CONF_FILE))
+CLIENT_LDFLAGS := $(LDFLAGS) $(shell pkg-config $(CLIENT_PKG_CONF_ARGS) --libs $(CLIENT_PKG_CONF_FILE))
 
 #Recipe-specific client arguments
 THREADTEST_EXTRA_LDFLAGS := -latomic
@@ -228,9 +228,9 @@ headers:
 	@rm -rf "$(HEADER_DIR)/tangle"
 	@mkdir -p "$(HEADER_DIR)"
 	@cp -rv "src/include/tangle" "$(HEADER_DIR)/tangle"
-	@mkdir -p "$(PKG_CONF_DIR)"
-	install "data/tangle.pc" "$(PKG_CONF_DIR)/tangle.pc"
-	sed -e "s|prefix=/usr/local|prefix=$(PREFIX_DIR)|" "data/tangle.pc" > "$(PKG_CONF_DIR)/tangle.pc"
+	@mkdir -p "$(PKG_CONF_INSTALL_DIR)"
+	install "data/tangle.pc" "$(PKG_CONF_INSTALL_DIR)/tangle.pc"
+	sed -e "s|prefix=/usr/local|prefix=$(PREFIX_DIR)|" "data/tangle.pc" > "$(PKG_CONF_INSTALL_DIR)/tangle.pc"
 install:
 	@mkdir -p "$(INSTALL_DIR)"
 	install "$(BUILD_DIR)/libtangle.so" "$(INSTALL_DIR)/$(LIBRARY_NAME)"
@@ -238,7 +238,7 @@ install:
 	ldconfig "$(INSTALL_DIR)"
 uninstall:
 	@rm -fv "$(INSTALL_DIR)/libtangle.so"*
-	@rm -fv "$(PKG_CONF_DIR)/tangle.pc"
+	@rm -fv "$(PKG_CONF_INSTALL_DIR)/tangle.pc"
 	@if [[ -d "$(HEADER_DIR)/tangle" ]]; then rm -rv "$(HEADER_DIR)/tangle"; fi
 	ldconfig
 
