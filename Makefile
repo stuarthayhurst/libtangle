@@ -1,41 +1,41 @@
-SHELL = bash -O globstar
+SHELL := bash -O globstar
 TIDY ?= clang-tidy
 
 BUILD_DIR ?= build
-CACHE_DIR = cache
+CACHE_DIR := cache
 PREFIX_DIR ?= /usr/local
 INSTALL_DIR ?= $(PREFIX_DIR)/lib
 HEADER_DIR ?= $(PREFIX_DIR)/include
 PKG_CONF_DIR ?= $(INSTALL_DIR)/pkgconfig
-LIBRARY_VERSION = $(shell pkg-config --modversion data/tangle.pc)
-LIBRARY_NAME = libtangle.so.$(LIBRARY_VERSION)
+LIBRARY_VERSION := $(shell pkg-config --modversion data/tangle.pc)
+LIBRARY_NAME := libtangle.so.$(LIBRARY_VERSION)
 
-TANGLE_OBJECTS_SOURCE = $(shell ls ./src/tangle/**/*.cpp)
-TANGLE_HEADERS_SOURCE = $(shell ls ./src/tangle/**/*.hpp)
+TANGLE_OBJECTS_SOURCE := $(shell ls ./src/tangle/**/*.cpp)
+TANGLE_HEADERS_SOURCE := $(shell ls ./src/tangle/**/*.hpp)
 TANGLE_INCLUDE_HEADERS_SOURCE += $(shell ls ./src/include/tangle/**/*.hpp)
 
-TEST_OBJECTS_SOURCE = $(shell ls ./src/tests/**/*.cpp)
-TEST_HEADERS_SOURCE = $(shell ls ./src/tests/**/*.hpp)
+TEST_OBJECTS_SOURCE := $(shell ls ./src/tests/**/*.cpp)
+TEST_HEADERS_SOURCE := $(shell ls ./src/tests/**/*.hpp)
 
-ROOT_OBJECTS_SOURCE = $(shell ls ./src/*.cpp)
+ROOT_OBJECTS_SOURCE := $(shell ls ./src/*.cpp)
 
-LINT_OBJECTS_SOURCE = $(ROOT_OBJECTS_SOURCE) $(TANGLE_OBJECTS_SOURCE)
-LINT_HEADERS_SOURCE = $(ROOT_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
+LINT_OBJECTS_SOURCE := $(ROOT_OBJECTS_SOURCE) $(TANGLE_OBJECTS_SOURCE)
+LINT_HEADERS_SOURCE := $(ROOT_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
 
-DEBUG_LINT_STRING = linted
+DEBUG_LINT_STRING := linted
 ifeq ($(DEBUG),true)
-  DEBUG_LINT_STRING = debug.linted
+  DEBUG_LINT_STRING := debug.linted
 endif
 
-LINT_FILES = $(subst ./src,$(OBJECT_DIR),$(subst .hpp,.hpp.$(DEBUG_LINT_STRING),$(LINT_HEADERS_SOURCE)))
+LINT_FILES := $(subst ./src,$(OBJECT_DIR),$(subst .hpp,.hpp.$(DEBUG_LINT_STRING),$(LINT_HEADERS_SOURCE)))
 LINT_FILES += $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.cpp.$(DEBUG_LINT_STRING),$(LINT_OBJECTS_SOURCE)))
-TEST_LINT_FILES = $(subst ./src,$(OBJECT_DIR),$(subst .hpp,.hpp.$(DEBUG_LINT_STRING),$(TEST_HEADERS_SOURCE)))
+TEST_LINT_FILES := $(subst ./src,$(OBJECT_DIR),$(subst .hpp,.hpp.$(DEBUG_LINT_STRING),$(TEST_HEADERS_SOURCE)))
 TEST_LINT_FILES += $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.cpp.$(DEBUG_LINT_STRING),$(TEST_OBJECTS_SOURCE)))
 
-OBJECT_DIR = $(BUILD_DIR)/objects
-TANGLE_OBJECTS = $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TANGLE_OBJECTS_SOURCE)))
-TEST_OBJECTS = $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TEST_OBJECTS_SOURCE)))
-ROOT_OBJECTS = $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(ROOT_OBJECTS_SOURCE)))
+OBJECT_DIR := $(BUILD_DIR)/objects
+TANGLE_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TANGLE_OBJECTS_SOURCE)))
+TEST_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TEST_OBJECTS_SOURCE)))
+ROOT_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(ROOT_OBJECTS_SOURCE)))
 
 #Global arguments
 CXXFLAGS += -Wall -Wextra -Werror -Wpedantic -std=c++23
@@ -61,10 +61,10 @@ ifeq ($(DEBUG),true)
   #Enable ASan and UBSan by default in debug mode if nothing incompatible is enabled
   ifeq (,$(filter true,$(CHECK_THREADS) $(CHECK_TYPES) $(CHECK_MEMORY)))
     ifndef CHECK_ADDRESS
-      CHECK_ADDRESS = true
+      CHECK_ADDRESS := true
     endif
     ifndef CHECK_UNDEFINED
-      CHECK_UNDEFINED = true
+      CHECK_UNDEFINED := true
     endif
   endif
 else
@@ -98,8 +98,8 @@ ifneq ($(VALGRIND_SAFE),true)
 endif
 
 #Fetch library dependencies and flags from tangle.pc
-LDFLAGS_PRIVATE = $(shell sed -ne 's/^.*Libs.private: //p' data/tangle.pc)
-CFLAGS_PRIVATE = $(shell sed -ne 's/^.*Cflags.private: //p' data/tangle.pc)
+LDFLAGS_PRIVATE := $(shell sed -ne 's/^.*Libs.private: //p' data/tangle.pc)
+CFLAGS_PRIVATE := $(shell sed -ne 's/^.*Cflags.private: //p' data/tangle.pc)
 
 #Library arguments
 LIBRARY_CXXFLAGS := $(CXXFLAGS) -fpic $(CFLAGS_PRIVATE)
@@ -107,13 +107,13 @@ LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE)
 
 #Client arguments
 ifneq ($(USE_SYSTEM),true)
-  PROJECT_ROOT = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-  PKG_CONF_ARGS = "--define-variable=tanglelibdir=$(BUILD_DIR)" \
-                  "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
-                  "--with-path=$(PROJECT_ROOT)/data"
-  PKG_CONF_FILE = data/tangle.pc
+  PROJECT_ROOT := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+  PKG_CONF_ARGS := "--define-variable=tanglelibdir=$(BUILD_DIR)" \
+                   "--define-variable=tangleincludedir=$(PROJECT_ROOT)/src/include" \
+                   "--with-path=$(PROJECT_ROOT)/data"
+  PKG_CONF_FILE := data/tangle.pc
 else
-  PKG_CONF_FILE = tangle
+  PKG_CONF_FILE := tangle
 endif
 
 CLIENT_CXXFLAGS := $(CXXFLAGS) $(shell pkg-config $(PKG_CONF_ARGS) --cflags $(PKG_CONF_FILE))
@@ -123,8 +123,8 @@ CLIENT_LDFLAGS := $(LDFLAGS) $(shell pkg-config $(PKG_CONF_ARGS) --libs $(PKG_CO
 THREADTEST_EXTRA_LDFLAGS := -latomic
 
 #Helper to run the compiler or extract the command
-EXTRACT_SCRIPT = python3 extract-command.py
-EXTRACT = @function inline() { if [[ "$(DUMMY)" != "true" ]]; then echo "$(CXX) $$@"; $(CXX) $$@; else $(EXTRACT_SCRIPT) "$(BUILD_DIR)" $(CXX) $$@; fi }; inline
+EXTRACT_SCRIPT := python3 extract-command.py
+EXTRACT := @function inline() { if [[ "$(DUMMY)" != "true" ]]; then echo "$(CXX) $$@"; $(CXX) $$@; else $(EXTRACT_SCRIPT) "$(BUILD_DIR)" $(CXX) $$@; fi }; inline
 
 # --------------------------------
 # Client build recipes
