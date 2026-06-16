@@ -2,6 +2,7 @@ SHELL := bash -O globstar
 TIDY ?= clang-tidy
 
 BUILD_DIR ?= build
+OBJECT_DIR := $(BUILD_DIR)/objects
 PREFIX_DIR ?= /usr/local
 INSTALL_DIR ?= $(PREFIX_DIR)/lib
 HEADER_DIR ?= $(PREFIX_DIR)/include
@@ -31,7 +32,6 @@ LINT_FILES += $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.cpp.$(DEBUG_LINT_STRING)
 TEST_LINT_FILES := $(subst ./src,$(OBJECT_DIR),$(subst .hpp,.hpp.$(DEBUG_LINT_STRING),$(TEST_HEADERS_SOURCE)))
 TEST_LINT_FILES += $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.cpp.$(DEBUG_LINT_STRING),$(TEST_OBJECTS_SOURCE)))
 
-OBJECT_DIR := $(BUILD_DIR)/objects
 TANGLE_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TANGLE_OBJECTS_SOURCE)))
 TEST_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(TEST_OBJECTS_SOURCE)))
 ROOT_OBJECTS := $(subst ./src,$(OBJECT_DIR),$(subst .cpp,.o,$(ROOT_OBJECTS_SOURCE)))
