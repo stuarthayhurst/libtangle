@@ -232,14 +232,13 @@ headers:
 	install "data/tangle.pc" "$(PKG_CONF_DIR)/tangle.pc"
 	sed -e "s|prefix=/usr/local|prefix=$(PREFIX_DIR)|" "data/tangle.pc" > "$(PKG_CONF_DIR)/tangle.pc"
 install:
-	@mkdir -p "$(INSTALL_DIR)/tangle"
-	install "$(BUILD_DIR)/libtangle.so" "$(INSTALL_DIR)/tangle/$(LIBRARY_NAME)"
-	@ln -sfv "$(LIBRARY_NAME)" "$(INSTALL_DIR)/tangle/libtangle.so"
-	ldconfig "$(INSTALL_DIR)/tangle"
+	@mkdir -p "$(INSTALL_DIR)"
+	install "$(BUILD_DIR)/libtangle.so" "$(INSTALL_DIR)/$(LIBRARY_NAME)"
+	@ln -sfv "$(LIBRARY_NAME)" "$(INSTALL_DIR)/libtangle.so"
+	ldconfig "$(INSTALL_DIR)"
 uninstall:
-	@rm -fv "$(INSTALL_DIR)/tangle/libtangle.so"*
+	@rm -fv "$(INSTALL_DIR)/libtangle.so"*
 	@rm -fv "$(PKG_CONF_DIR)/tangle.pc"
-	@if [[ -d "$(INSTALL_DIR)/tangle" ]]; then rm -div "$(INSTALL_DIR)/tangle"; fi
 	@if [[ -d "$(HEADER_DIR)/tangle" ]]; then rm -rv "$(HEADER_DIR)/tangle"; fi
 	ldconfig
 
