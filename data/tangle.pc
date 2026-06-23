@@ -5,7 +5,7 @@ tangleincludedir=${prefix}/include
 Name: libtangle
 Description: C++ library to provide a thread pool and synchronised output helpers
 URL: https://github.com/stuarthayhurst/libtangle
-Version: 0.0.1
+Version: 1.0.0
 License: MIT
 Maintainer: Stuart Hayhurst (https://github.com/stuarthayhurst/libtangle)
 Cflags: -I${tangleincludedir}
