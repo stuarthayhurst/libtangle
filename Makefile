@@ -7,8 +7,18 @@ PREFIX_DIR ?= /usr/local
 INSTALL_DIR ?= $(PREFIX_DIR)/lib
 HEADER_DIR ?= $(PREFIX_DIR)/include
 PKG_CONF_INSTALL_DIR ?= $(INSTALL_DIR)/pkgconfig
+
 LIBRARY_VERSION := $(shell pkg-config --modversion data/tangle.pc)
-LIBRARY_NAME := libtangle.so.$(LIBRARY_VERSION)
+
+LIBRARY_NAME_FULL := libtangle.so.$(LIBRARY_VERSION)
+LIBRARY_NAME_MINOR := $(basename $(LIBRARY_NAME_FULL))
+LIBRARY_NAME_MAJOR := $(basename $(LIBRARY_NAME_MINOR))
+LIBRARY_NAME_BASE := $(basename $(LIBRARY_NAME_MAJOR))
+
+#Names and files that link to the build library
+LIBRARY_LINK_NAMES := $(LIBRARY_NAME_BASE) $(LIBRARY_NAME_MAJOR) $(LIBRARY_NAME_MINOR)
+LIBRARY_LINK_FILES := $(addprefix $(BUILD_DIR)/,$(LIBRARY_LINK_NAMES))
+
 
 TANGLE_OBJECTS_SOURCE := $(shell ls ./src/tangle/**/*.cpp)
 TANGLE_HEADERS_SOURCE := $(shell ls ./src/tangle/**/*.hpp)
@@ -102,7 +112,7 @@ CFLAGS_PRIVATE := $(shell sed -ne 's/^.*Cflags.private: //p' data/tangle.pc)
 
 #Library arguments
 LIBRARY_CXXFLAGS := $(CXXFLAGS) -fpic $(CFLAGS_PRIVATE)
-LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME)" $(LDFLAGS_PRIVATE)
+LIBRARY_LDFLAGS := $(LDFLAGS) "-Wl,-soname,$(LIBRARY_NAME_MINOR)" $(LDFLAGS_PRIVATE)
 
 #Client arguments
 ifneq ($(USE_SYSTEM),true)
@@ -129,7 +139,7 @@ EXTRACT := @function inline() { if [[ "$(DUMMY)" != "true" ]]; then echo "$(CXX)
 # Client build recipes
 # --------------------------------
 
-$(BUILD_DIR)/threadTest: $(BUILD_DIR)/$(LIBRARY_NAME) $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS)
+$(BUILD_DIR)/threadTest: $(BUILD_DIR)/$(LIBRARY_NAME_FULL) $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS)
 	@mkdir -p "$(BUILD_DIR)"
 	$(CXX) -o "$(BUILD_DIR)/threadTest" $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS) $(CLIENT_CXXFLAGS) $(CLIENT_LDFLAGS) $(THREADTEST_EXTRA_LDFLAGS)
 
@@ -145,15 +155,15 @@ $(OBJECT_DIR)/%.o: ./src/%.cpp $(TEST_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_S
 # Library build recipes
 # --------------------------------
 
-$(BUILD_DIR)/libtangle.so: $(TANGLE_OBJECTS)
+$(LIBRARY_LINK_FILES):
+	@ln -sfv "$(LIBRARY_NAME_FULL)" "$@"
+$(BUILD_DIR)/$(LIBRARY_NAME_FULL): $(TANGLE_OBJECTS)
 	@mkdir -p "$(OBJECT_DIR)"
 	$(CXX) -shared -o "$@" $(TANGLE_OBJECTS) $(LIBRARY_CXXFLAGS) $(LIBRARY_LDFLAGS)
 	@if [[ "$(DEBUG)" != "true" ]]; then \
 	  strip --strip-unneeded "$@"; \
 	fi
-$(BUILD_DIR)/$(LIBRARY_NAME): $(BUILD_DIR)/libtangle.so
-	@rm -fv "$(BUILD_DIR)/$(LIBRARY_NAME)"
-	@ln -sv "libtangle.so" "$(BUILD_DIR)/$(LIBRARY_NAME)"
+	$(MAKE) $(LIBRARY_LINK_FILES)
 
 #Recipe dependencies need to be mirrored in the corresponding lint targets
 $(OBJECT_DIR)/tangle/%.o: ./src/tangle/%.cpp $(TANGLE_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
@@ -217,7 +227,7 @@ debug-all:
 # Library phony recipes
 # --------------------------------
 
-library: $(BUILD_DIR)/$(LIBRARY_NAME)
+library: $(BUILD_DIR)/$(LIBRARY_NAME_FULL)
 
 
 # --------------------------------
@@ -233,8 +243,10 @@ headers:
 	sed -e "s|prefix=/usr/local|prefix=$(PREFIX_DIR)|" "data/tangle.pc" > "$(PKG_CONF_INSTALL_DIR)/tangle.pc"
 install:
 	@mkdir -p "$(INSTALL_DIR)"
-	install "$(BUILD_DIR)/libtangle.so" "$(INSTALL_DIR)/$(LIBRARY_NAME)"
-	@ln -sfv "$(LIBRARY_NAME)" "$(INSTALL_DIR)/libtangle.so"
+	@cp -Pv "$(BUILD_DIR)/$(LIBRARY_NAME_FULL)" "$(INSTALL_DIR)/$(LIBRARY_NAME_FULL)"
+	@cp -Pv "$(BUILD_DIR)/$(LIBRARY_NAME_MINOR)" "$(INSTALL_DIR)/$(LIBRARY_NAME_MINOR)"
+	@cp -Pv "$(BUILD_DIR)/$(LIBRARY_NAME_MAJOR)" "$(INSTALL_DIR)/$(LIBRARY_NAME_MAJOR)"
+	@cp -Pv "$(BUILD_DIR)/$(LIBRARY_NAME_BASE)" "$(INSTALL_DIR)/$(LIBRARY_NAME_BASE)"
 	ldconfig "$(INSTALL_DIR)"
 uninstall:
 	@rm -fv "$(INSTALL_DIR)/libtangle.so"*
