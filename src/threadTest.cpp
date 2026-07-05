@@ -291,7 +291,7 @@ namespace {
     return passed;
   }
 
-  bool testNestedJobs(int fullJobCount) {
+  bool testNestedJobs(unsigned int fullJobCount) {
     const unsigned int jobCount = fullJobCount / 2;
     tests::utils::Timer* const timers = createTimers();
     if (!createThreadPool(0)) {
@@ -866,86 +866,126 @@ namespace {
   }
 }
 
+namespace {
+  //Test type signature
+  using TestPointer = bool (*)(unsigned int jobCount);
+
+  //Enums to determine how the job count is handled
+  enum JobCountMode : unsigned char {
+    DEFAULT,
+    SINGLE,
+    POOL_SIZE,
+    HARDWARE_SIZE_4
+  };
+
+  //NOLINTBEGIN(modernize-use-designated-initializers)
+  struct TestInfo {
+    std::string title;
+    TestPointer testPointer;
+    JobCountMode jobCountMode;
+  } testInfoArray[] = {
+    //Normal tests
+    {"Testing standard submit, wait, destroy", testCreateSubmitWaitDestroy, DEFAULT},
+    {"Testing alternative sync", testCreateSubmitBlockUnblockDestroy, DEFAULT},
+    {"Testing no sync", testCreateSubmitDestroy, DEFAULT},
+    {"Testing blocked queue", testCreateBlockSubmitUnblockWaitDestroy, DEFAULT},
+    {"Testing queue limits (8x regular over 2 batches)", testQueueLimits, DEFAULT},
+    {"Testing nested jobs", testNestedJobs, DEFAULT},
+    {"Testing chained jobs", testChainJobs, DEFAULT},
+    {"Testing single synchronisation helper", testSingleSyncHelper, DEFAULT},
+    {"Testing multiple synchronisation helpers", testMultipleSyncHelper, DEFAULT},
+
+    //Submit multiple tests
+    {"Testing submit multiple", testSubmitMultiple, DEFAULT},
+    {"Testing submit multiple, minimal", testSubmitMultiple, SINGLE},
+    {"Testing submit multiple, thread count", testSubmitMultiple, POOL_SIZE},
+    {"Testing submit multiple (4x regular over 4 batches)", testSubmitMultipleMultiple, DEFAULT},
+    {"Testing submit multiple, synchronous submit", testSubmitMultipleSyncSubmit, DEFAULT},
+    {"Testing submit multiple, no job sync", testSubmitMultipleNoSync, DEFAULT},
+
+    //Varied tests
+    {"Testing random workloads", testRandomWorkloads, DEFAULT},
+
+    //Utility tests
+    {"Testing synchronised output helpers", testOutputHelpers, HARDWARE_SIZE_4},
+
+    //Blocking tests
+    {"Testing double block, double unblock", testCreateBlockBlockUnblockUnblockSubmitDestroy,
+     DEFAULT},
+    {"Testing double block, single unblock", testCreateBlockBlockUnblockSubmitDestroy, DEFAULT},
+    {"Testing double block, submit jobs, single unblock", testCreateBlockBlockSubmitUnblockDestroy,
+     DEFAULT},
+    {"Testing single block, double unblock", testCreateBlockUnblockUnblockSubmitDestroy, DEFAULT},
+    {"Testing unblock without block", testCreateUnblockSubmitDestroy, DEFAULT},
+
+    //Confirm functionality
+    {"Double-checking standard submit, wait, destroy", testCreateSubmitWaitDestroy, DEFAULT}
+  };
+  //NOLINTEND(modernize-use-designated-initializers)
+}
+
+namespace {
+  struct TestStats {
+    unsigned int passed = 0;
+    unsigned int total = 0;
+  };
+
+  void runTest(const TestInfo& testInfo, unsigned int jobCount, TestStats* testStatsPtr) {
+    //Print the test title
+    tangle::utils::normal << testInfo.title << std::endl;
+
+    //Handle the job count mode
+    switch (testInfo.jobCountMode) {
+    case DEFAULT:
+      break;
+    case SINGLE:
+      jobCount = 1;
+      break;
+    case POOL_SIZE:
+      jobCount = tangle::thread::getThreadPoolSize();
+      break;
+    case HARDWARE_SIZE_4:
+      jobCount = tangle::thread::getHardwareThreadCount() * 4;
+      break;
+    }
+
+    //Run the test
+    const bool passed = testInfo.testPointer(jobCount);
+
+    //Update the test stats
+    testStatsPtr->total++;
+    if (passed) {
+      testStatsPtr->passed++;
+    }
+  }
+
+  void printSummary(const TestStats& testStats, const tests::utils::Timer& totalTimer) {
+    tangle::utils::normal.printEmptyLine();
+    tangle::utils::normal << "Tests passed: " << testStats.passed << " / " \
+                          << testStats.total << std::endl;
+    tangle::utils::normal << "Tests failed: " << testStats.total - testStats.passed \
+                          << " / " << testStats.total << std::endl;
+    tangle::utils::normal << "Total time: " << totalTimer.getTime() << "s" << std::endl;
+  }
+}
+
 int main() noexcept(false) {
-  bool failed = false;
   tangle::utils::status << tangle::thread::getHardwareThreadCount() \
                         << " hardware threads detected" << std::endl;
 
   //Pick jobs per test
   const unsigned int jobCount = (2 << 16);
 
-  //Begin regular tests
-  tangle::utils::normal << "Testing standard submit, wait, destroy" << std::endl;
-  failed |= !testCreateSubmitWaitDestroy(jobCount);
+  //Run the tests
+  const tests::utils::Timer totalTimer;
+  TestStats testStats;
+  for (const TestInfo& testInfo : testInfoArray) {
+    runTest(testInfo, jobCount, &testStats);
+  }
 
-  tangle::utils::normal << "Testing alternative sync" << std::endl;
-  failed |= !testCreateSubmitBlockUnblockDestroy(jobCount);
+  //Print test summary
+  printSummary(testStats, totalTimer);
 
-  tangle::utils::normal << "Testing no sync" << std::endl;
-  failed |= !testCreateSubmitDestroy(jobCount);
-
-  tangle::utils::normal << "Testing blocked queue" << std::endl;
-  failed |= !testCreateBlockSubmitUnblockWaitDestroy(jobCount);
-
-  tangle::utils::normal << "Testing queue limits (8x regular over 2 batches)" << std::endl;
-  failed |= !testQueueLimits(jobCount);
-
-  tangle::utils::normal << "Testing nested jobs" << std::endl;
-  failed |= !testNestedJobs(jobCount);
-
-  tangle::utils::normal << "Testing chained jobs" << std::endl;
-  failed |= !testChainJobs(jobCount);
-
-  tangle::utils::normal << "Testing single synchronisation helper" << std::endl;
-  failed |= !testSingleSyncHelper(jobCount);
-
-  tangle::utils::normal << "Testing multiple synchronisation helpers" << std::endl;
-  failed |= !testMultipleSyncHelper(jobCount);
-
-  tangle::utils::normal << "Testing submit multiple" << std::endl;
-  failed |= !testSubmitMultiple(jobCount);
-
-  tangle::utils::normal << "Testing submit multiple, minimal" << std::endl;
-  failed |= !testSubmitMultiple(1);
-
-  tangle::utils::normal << "Testing submit multiple, thread count" << std::endl;
-  failed |= !testSubmitMultiple(tangle::thread::getThreadPoolSize());
-
-  tangle::utils::normal << "Testing submit multiple (4x regular over 4 batches)" << std::endl;
-  failed |= !testSubmitMultipleMultiple(jobCount);
-
-  tangle::utils::normal << "Testing submit multiple, synchronous submit" << std::endl;
-  failed |= !testSubmitMultipleSyncSubmit(jobCount);
-
-  tangle::utils::normal << "Testing submit multiple, no job sync" << std::endl;
-  failed |= !testSubmitMultipleNoSync(jobCount);
-
-  tangle::utils::normal << "Testing random workloads" << std::endl;
-  failed |= !testRandomWorkloads(jobCount);
-
-  tangle::utils::normal << "Testing synchronised output helpers" << std::endl;
-  const unsigned int threadCount = tangle::thread::getHardwareThreadCount();
-  failed |= !testOutputHelpers(threadCount * 4);
-
-  //Begin blocking tests
-  tangle::utils::normal << "Testing double block, double unblock" << std::endl;
-  failed |= !testCreateBlockBlockUnblockUnblockSubmitDestroy(jobCount);
-
-  tangle::utils::normal << "Testing double block, single unblock" << std::endl;
-  failed |= !testCreateBlockBlockUnblockSubmitDestroy(jobCount);
-
-  tangle::utils::normal << "Testing double block, submit jobs, single unblock" << std::endl;
-  failed |= !testCreateBlockBlockSubmitUnblockDestroy(jobCount);
-
-  tangle::utils::normal << "Testing single block, double unblock" << std::endl;
-  failed |= !testCreateBlockUnblockUnblockSubmitDestroy(jobCount);
-
-  tangle::utils::normal << "Testing unblock without block" << std::endl;
-  failed |= !testCreateUnblockSubmitDestroy(jobCount);
-
-  //Check system is still functional
-  tangle::utils::normal << "Double-checking standard submit, wait, destroy" << std::endl;
-  failed |= !testCreateSubmitWaitDestroy(jobCount);
-
-  return failed ? EXIT_FAILURE : EXIT_SUCCESS;
+  const bool passed = (testStats.passed == testStats.total);
+  return passed ? EXIT_SUCCESS : EXIT_FAILURE;
 }
