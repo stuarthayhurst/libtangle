@@ -31,6 +31,10 @@ namespace tangle {
       return *this;
     }
 
+    /*
+     - Immediately print an empty line, without modifying the synchronised buffer
+     - Allows clearing the output stream's buffer, without clearing the synchronised buffer
+    */
     void OutputHelper::printEmptyLine() {
       outputLock.lock();
       this->outputStream << std::endl;
