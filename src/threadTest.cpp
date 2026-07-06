@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <iostream>
-#include <ostream>
 #include <string>
 
 #include <tangle/tangle.hpp>
@@ -40,7 +39,7 @@ namespace {
     //Submit multiple tests
     {"Testing submit multiple", tests::testSubmitMultiple, DEFAULT},
     {"Testing submit multiple, minimal", tests::testSubmitMultiple, SINGLE},
-    {"Testing submit multiple, thread count", tests::testSubmitMultiple, POOL_SIZE},
+    {"Testing submit multiple, pool size", tests::testSubmitMultiple, POOL_SIZE},
     {"Testing submit multiple (4x regular over 4 batches)", tests::testSubmitMultipleMultiple,
      DEFAULT},
     {"Testing submit multiple, synchronous submit", tests::testSubmitMultipleSyncSubmit, DEFAULT},
