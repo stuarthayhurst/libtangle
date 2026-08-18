@@ -7,37 +7,10 @@
 namespace tangle {
   namespace thread {
     namespace internal {
-      //Wait for jobCount jobs in group to finish
       void waitGroupComplete(TangleGroup* group, unsigned int jobCount) {
         for (unsigned int i = 0; i < jobCount; i++) {
           group->acquire();
         }
-      }
-
-      /*
-       - Return true if at least one item of a group has finished
-         - May spuriously fail, returning false when work had finished
-       - Acts like synchronisation if successful, decreasing the group's counter
-      */
-      bool isSingleWorkComplete(TangleGroup* group) {
-        return group->try_acquire();
-      }
-
-      /*
-       - Return the number of unfinished jobs in a group
-         - This is jobCount - the number of successfully acquired jobs
-         - Remaining work may be overestimated, but never underestimated
-       - Acts like synchronisation if successful, decreasing the group's counter
-         - This means the return value can't be ignored if the group will be used for
-           synchronisation later on
-      */
-      unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount) {
-        unsigned int finishedJobs = 0;
-        while (group->try_acquire()) {
-          finishedJobs++;
-        };
-
-        return jobCount - finishedJobs;
       }
     }
   }
@@ -46,7 +19,7 @@ namespace tangle {
 namespace tangle {
   namespace thread {
     /*
-     - Wait for a group to be finished
+     - Wait for the specified number of jobs in a group to finish
      - jobCount determines how many jobs to wait for
        - If less than jobCount jobs have been given the group, this will block forever
        - It doesn't matter if the jobs have already finished
@@ -69,7 +42,7 @@ namespace tangle {
     */
     bool isSingleWorkComplete(TangleGroup* group) {
       if (group != nullptr) {
-        return internal::isSingleWorkComplete(group);
+        return group->try_acquire();
       }
 
       tangleInternalDebug << "Group is a nullptr, skipping check" << std::endl;
@@ -78,15 +51,23 @@ namespace tangle {
 
     /*
      - Return the number of unfinished jobs in a group
+       - This is jobCount - the number of successfully acquired jobs
      - Successive calls should use the remaining jobs returned as the job count
        - Subtract any synchronised / successfully queried jobs from this too
      - Remaining work may be overestimated, but never underestimated
      - Acts like synchronisation if successful, decreasing the group's counter
+       - This means the return value can't be ignored if the group will be used for
+           synchronisation later on
      - If unsuccessful, nothing in the group is modified
     */
     unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount) {
       if (group != nullptr) {
-        return internal::getRemainingWork(group, jobCount);
+        unsigned int finishedJobs = 0;
+        while (group->try_acquire()) {
+          finishedJobs++;
+        };
+
+        return jobCount - finishedJobs;
       }
 
       tangleInternalDebug << "Group is a nullptr, skipping query" << std::endl;
