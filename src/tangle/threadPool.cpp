@@ -13,10 +13,11 @@
 
 #include <unistd.h>
 
-#include "thread.hpp"
+#include "threadPool.hpp"
 
 #include "debug.hpp"
 #include "logging.hpp"
+#include "thread.hpp"
 
 static constexpr unsigned int MAX_THREADS = 512;
 

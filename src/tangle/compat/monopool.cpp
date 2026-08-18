@@ -5,6 +5,7 @@
 #include "../debug.hpp"
 #include "../logging.hpp"
 #include "../thread.hpp"
+#include "../threadPool.hpp"
 
 namespace tangle {
   namespace thread {

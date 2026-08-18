@@ -4,6 +4,7 @@
 
 #include "debug.hpp"
 #include "logging.hpp"
+#include "threadPool.hpp"
 
 namespace tangle {
   namespace thread {
