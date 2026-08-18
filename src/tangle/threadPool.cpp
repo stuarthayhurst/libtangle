@@ -20,6 +20,12 @@
 #include "logging.hpp"
 #include "thread.hpp"
 
+/*
+ - Implements the core thread pool functionality internally
+ - Each thread pool has multiple queues, cycling between them for new jobs
+ - Each queue isn't lock free, but jobs can be submitted as a batch to mitigate this
+*/
+
 static constexpr unsigned int MAX_THREADS = 512;
 
 namespace {

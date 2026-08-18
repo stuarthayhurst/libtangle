@@ -4,6 +4,12 @@
 
 #include "debug.hpp"
 
+/*
+ - Implements job synchronisation using TangleGroups
+ - Groups are just semaphores that get incremented by each completed job that was passed it
+ - Multiple jobs can share the same group, and groups can be reused without reinitialisation
+*/
+
 namespace tangle {
   namespace thread {
     namespace internal {

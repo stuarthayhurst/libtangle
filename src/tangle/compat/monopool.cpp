@@ -8,6 +8,12 @@
 #include "../thread.hpp"
 #include "../threadPool.hpp"
 
+/*
+ - Implements the legacy single thread pool API
+ - Tracks total thread pool users to create and destroy a single thread pool as required
+ - This is only provided for compatibility, and should generally be avoided
+*/
+
 namespace tangle {
   namespace thread {
     namespace {

@@ -5,6 +5,14 @@
 
 #include "logging.hpp"
 
+/*
+ - Implements a synchronised output stream
+ - A lock is shared between the threads, and used when flushing the buffers
+   - This means that multiple output helpers don't race
+ - Output is buffered per-thread, per-helper
+   - This means multiple writes to the same helper from different threads don't get mixed up
+*/
+
 namespace tangle {
   namespace utils {
     namespace {

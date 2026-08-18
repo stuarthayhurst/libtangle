@@ -6,6 +6,11 @@
 #include "logging.hpp"
 #include "threadPool.hpp"
 
+/*
+ - Connects exposed functions to the internal thread pool functions
+ - Adds some additional checks and convenience functions
+*/
+
 namespace tangle {
   namespace thread {
     //Return the number of hardware threads available
