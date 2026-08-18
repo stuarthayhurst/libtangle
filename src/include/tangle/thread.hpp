@@ -19,26 +19,26 @@ using TangleGroup = std::counting_semaphore<INT_MAX>;
 namespace TANGLE_EXPOSED tangle {
   namespace thread {
     unsigned int getHardwareThreadCount();
-    unsigned int getThreadPoolSize();
+    unsigned int getThreadPoolSize(void* threadPool);
 
-    bool createThreadPool(unsigned int threadCount);
-    void destroyThreadPool();
+    void* createThreadPoolInstance(unsigned int threadCount);
+    void destroyThreadPool(void* threadPool);
 
-    void submitWork(TangleWork work, void* userPtr);
-    void submitWork(TangleWork work, void* userPtr, TangleGroup* group);
+    void submitWork(TangleWork work, void* userPtr, void* threadPool);
+    void submitWork(TangleWork work, void* userPtr, TangleGroup* group, void* threadPool);
     void submitMultiple(TangleWork work, void* userBuffer, int stride,
                         TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup);
+                        TangleGroup* submitGroup, void* threadPool);
     void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
-                            TangleGroup* group, unsigned int jobCount);
+                            TangleGroup* group, unsigned int jobCount, void* threadPool);
 
     void waitGroupComplete(TangleGroup* group, unsigned int jobCount);
     bool isSingleWorkComplete(TangleGroup* group);
     unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount);
 
-    void blockThreads();
-    void unblockThreads();
-    void finishWork();
+    void blockThreads(void* threadPool);
+    void unblockThreads(void* threadPool);
+    void finishWork(void* threadPool);
   }
 }
 

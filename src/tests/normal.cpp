@@ -168,7 +168,7 @@ namespace tests {
     for (unsigned int i = 0; i < jobCount; i++) {
       data[i].writePtr = &values[i];
       data[i].syncPtr = &group;
-      tangle::thread::submitWork(tests::common::resubmitTask, &data[i], nullptr);
+      tangle::thread::submitWork(tests::common::resubmitTask, &data[i], (TangleGroup*)nullptr);
     }
     tests::common::finishSubmitTimer(timers);
 

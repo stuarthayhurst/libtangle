@@ -7,85 +7,62 @@
 
 namespace tangle {
   namespace thread {
-    namespace {
-      unsigned int poolUsers = 0;
-    }
-
     //Return the number of hardware threads available
     unsigned int getHardwareThreadCount() {
       return internal::getHardwareThreadCount();
     }
 
-    /*
-     - Return the number of threads in the pool
-       - Returns 0 if the pool doesn't exist
-    */
-    unsigned int getThreadPoolSize() {
-      return internal::getThreadPoolSize();
+    //Return the number of threads in the given pool
+    unsigned int getThreadPoolSize(void* threadPool) {
+      return internal::getThreadPoolSize(threadPool);
     }
 
     /*
-     - Create or increase the reference counter on the thread pool
+     - Create a new thread pool
      - Use destroyThreadPool() to clean up afterwards
-     - Returns false if no thread pool exists or was created, otherwise true
     */
-    bool createThreadPool(unsigned int threadCount) {
-      bool exists = true;
-      if (poolUsers == 0) {
-        exists = internal::createThreadPool(threadCount);
+    void* createThreadPoolInstance(unsigned int threadCount) {
+      void* const threadPool = internal::createThreadPoolInstance(threadCount);
+      if (threadPool == nullptr) {
+        tangle::utils::warning << "Failed to create a new thread pool instance" << std::endl;
       }
 
-      poolUsers++;
-      return exists;
+      return threadPool;
     }
 
     /*
-     - Destroy or exit the current thread pool
-     - Must be called once per creation / connection
+     - Destroy the given thread pool
+     - Must only be called once per thread pool
      - If jobs in the queue may more submit work, they must be completed before calling this
-     - This will only block until the jobs complete if it's the final user of the pool
+     - This will block until the queued jobs complete
     */
-    void destroyThreadPool() {
-      if (poolUsers == 0) {
-        tangle::utils::warning << "Attempted to destroy a thread pool before creation, ignoring" \
-                               << std::endl;
-        return;
-      }
-
-      poolUsers--;
-      if (poolUsers == 0) {
-        internal::destroyThreadPool();
-      } else {
-        tangleInternalDebug << "Skipping thread pool destruction, " \
-                            << poolUsers << " users remain" << std::endl;
-      }
+    void destroyThreadPool(void* threadPool) {
+      internal::destroyThreadPool(threadPool);
     }
 
     /*
-     - Submit a job to the thread pool, with a user-provided pointer
+     - Submit a job to the given thread pool, with a user-provided pointer
        - userPtr may be a nullptr
-     - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr) {
-      internal::submitWork(work, userPtr, nullptr);
+    void submitWork(TangleWork work, void* userPtr, void* threadPool) {
+      internal::submitWork(work, userPtr, nullptr, threadPool);
     }
 
     /*
-     - Submit a job to the thread pool, with a user-provided pointer and group
+     - Submit a job to the given thread pool, with a user-provided pointer and group
        - group should either be a nullptr, or an TangleGroup{0}
          - A group can be used between multiple calls, but waiting on it will block
            until all work in the group is done
        - userPtr may be a nullptr
-     - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr, TangleGroup* group) {
-      internal::submitWork(work, userPtr, group);
+    void submitWork(TangleWork work, void* userPtr, TangleGroup* group, void* threadPool) {
+      internal::submitWork(work, userPtr, group, threadPool);
     }
 
     /*
-     - Submit multiple jobs to the thread pool, with a user-provided buffer and group
+     - Submit multiple jobs to the given thread pool, with a user-provided buffer and group
        - userBuffer should either be a nullptr, or an array of data to be split between jobs
          - Each job will receive a section according to (userBuffer + job index * stride)
          - stride should be the size of each section to give to a job, in bytes
@@ -96,29 +73,28 @@ namespace tangle {
        to wait for the submit to be complete
        - Waiting on submitGroup or group must be done before destroying the thread pool
        - This may be a while, use submitMultipleSync() instead of immediately waiting
-     - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
     void submitMultiple(TangleWork work, void* userBuffer, int stride,
                         TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup) {
+                        TangleGroup* submitGroup, void* threadPool) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
       }
 
-      internal::submitMultiple(work, userBuffer, stride, group, jobCount, submitGroup);
+      internal::submitMultiple(work, userBuffer, stride, group, jobCount, submitGroup, threadPool);
     }
 
     //Synchronous version of submitMultiple()
     void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
-                            TangleGroup* group, unsigned int jobCount) {
+                            TangleGroup* group, unsigned int jobCount, void* threadPool) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
       }
 
-      internal::submitMultipleSync(work, userBuffer, stride, group, jobCount);
+      internal::submitMultipleSync(work, userBuffer, stride, group, jobCount, threadPool);
     }
 
     /*
@@ -170,14 +146,12 @@ namespace tangle {
     }
 
     /*
-     - Block the pool from starting new jobs
+     - Block the given pool from starting new jobs
      - Returns once all threads are blocked
      - This isn't thread safe, and must never be called from a job
     */
-    void blockThreads() {
-      if (poolUsers != 0) {
-        internal::blockThreads();
-      }
+    void blockThreads(void* threadPool) {
+      internal::blockThreads(threadPool);
     }
 
     /*
@@ -185,10 +159,8 @@ namespace tangle {
      - Returns once threads are have woken up
      - This isn't thread safe, and must never be called from a job
     */
-    void unblockThreads() {
-      if (poolUsers != 0) {
-        internal::unblockThreads();
-      }
+    void unblockThreads(void* threadPool) {
+      internal::unblockThreads(threadPool);
     }
 
     /*
@@ -197,10 +169,8 @@ namespace tangle {
        - This includes submitMultiple(), which submits a job to submit the actual jobs
      - This isn't thread safe, and must never be called from a job
     */
-    void finishWork() {
-      if (poolUsers != 0) {
-        internal::finishWork();
-      }
+    void finishWork(void* threadPool) {
+      internal::finishWork(threadPool);
     }
   }
 }
