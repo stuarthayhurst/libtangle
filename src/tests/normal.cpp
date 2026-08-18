@@ -168,7 +168,7 @@ namespace tests {
     for (unsigned int i = 0; i < jobCount; i++) {
       data[i].writePtr = &values[i];
       data[i].syncPtr = &group;
-      tangle::thread::submitWork(tests::common::resubmitTask, &data[i], (TangleGroup*)nullptr);
+      tangle::thread::submitWork(tests::common::resubmitTask, &data[i], NO_GROUP);
     }
     tests::common::finishSubmitTimer(timers);
 
@@ -208,7 +208,7 @@ namespace tests {
     //Submit chain 'jobs'
     tests::common::resetTimers(timers);
     tangle::thread::submitMultiple(tests::common::chainTask, userDataArray,
-                                   sizeof(tests::common::ChainData), &sync, poolSize, nullptr);
+                                   sizeof(tests::common::ChainData), &sync, poolSize, NO_GROUP);
     tests::common::finishSubmitTimer(timers);
 
     tangle::thread::waitGroupComplete(&sync, totalJobCount);
@@ -291,7 +291,7 @@ namespace tests {
     //Submit 'fast' jobs
     tests::common::resetTimers(timers);
     tangle::thread::submitMultiple(tests::common::shortTask, &values[0], sizeof(values[0]),
-                                   &group, jobCount, nullptr);
+                                   &group, jobCount, NO_GROUP);
     tests::common::finishSubmitTimer(timers);
 
     //Wait for the jobs to complete

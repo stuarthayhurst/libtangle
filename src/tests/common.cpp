@@ -116,7 +116,7 @@ namespace tests {
 
     void submitShortJobs(unsigned int jobCount, unsigned int* values) {
       for (unsigned int i = 0; i < jobCount; i++) {
-        tangle::thread::submitWork(shortTask, &values[i], (TangleGroup*)nullptr);
+        tangle::thread::submitWork(shortTask, &values[i], NO_GROUP);
       }
     }
 

@@ -50,7 +50,7 @@ namespace tests {
         tangle::utils::normal << "  " << testIndex \
                               << ": Testing regular submit, without explicit sync" \
                               << std::endl;
-        tests::common::submitShortSyncJobs(batchSize, offsetValues, nullptr);
+        tests::common::submitShortSyncJobs(batchSize, offsetValues, NO_GROUP);
         break;
       case 2:
         tangle::utils::normal << "  " << testIndex \
@@ -62,7 +62,7 @@ namespace tests {
           batchInfo.group = new TangleGroup{0};
 
           tangle::thread::submitMultiple(tests::common::shortTask, offsetValues, sizeof(values[0]),
-                                         batchInfo.group, batchSize, nullptr);
+                                         batchInfo.group, batchSize, NO_GROUP);
           break;
         }
       case 3:
@@ -75,7 +75,7 @@ namespace tests {
           batchInfo.group = new TangleGroup{0};
 
           tangle::thread::submitMultiple(tests::common::shortTask, offsetValues, sizeof(values[0]),
-                                         nullptr, batchSize, batchInfo.group);
+                                         NO_GROUP, batchSize, batchInfo.group);
           break;
         }
       case 4:
@@ -101,7 +101,7 @@ namespace tests {
 
           tangle::thread::blockThreads();
           tangle::thread::submitMultiple(tests::common::shortTask, offsetValues, sizeof(values[0]),
-                                         batchInfo.group, batchSize, nullptr);
+                                         batchInfo.group, batchSize, NO_GROUP);
           tangle::thread::unblockThreads();
           break;
         }

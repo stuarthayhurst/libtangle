@@ -20,7 +20,7 @@ namespace tests {
     //Submit fast 'jobs'
     tests::common::resetTimers(timers);
     tangle::thread::submitMultiple(tests::common::shortTask, &values[0], sizeof(values[0]),
-                                   &group, jobCount, nullptr);
+                                   &group, jobCount, NO_GROUP);
     tests::common::finishSubmitTimer(timers);
 
     //Finish work
