@@ -39,7 +39,7 @@ namespace tangle {
     /*
      - Destroy the given thread pool
      - Must only be called once per thread pool
-     - If jobs in the queue may more submit work, they must be completed before calling this
+     - If jobs in the queue may submit more work, they must be completed before calling this
      - This will block until the queued jobs complete
     */
     void destroyThreadPool(void* threadPool) {

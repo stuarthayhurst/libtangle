@@ -54,7 +54,7 @@ namespace tangle {
     /*
      - Destroy or exit the current thread pool
      - Must be called once per creation / connection
-     - If jobs in the queue may more submit work, they must be completed before calling this
+     - If jobs in the queue may submit more work, they must be completed before calling this
      - This will only block until the jobs complete if it's the final user of the pool
     */
     void destroyThreadPool() {
