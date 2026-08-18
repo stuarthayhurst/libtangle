@@ -20,10 +20,6 @@ namespace TANGLE_INTERNAL tangle {
       void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
                               TangleGroup* group, unsigned int newJobs, void* threadPoolPtr);
 
-      void waitGroupComplete(TangleGroup* group, unsigned int jobCount);
-      bool isSingleWorkComplete(TangleGroup* group);
-      unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount);
-
       void blockThreads(void* threadPoolPtr);
       void unblockThreads(void* threadPoolPtr);
       void finishWork(void* threadPoolPtr);

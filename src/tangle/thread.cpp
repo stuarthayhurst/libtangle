@@ -2,7 +2,7 @@
 
 #include "thread.hpp"
 
-#include "debug.hpp"
+#include "group.hpp"
 #include "logging.hpp"
 #include "threadPool.hpp"
 
@@ -96,54 +96,6 @@ namespace tangle {
       }
 
       internal::submitMultipleSync(work, userBuffer, stride, group, jobCount, threadPool);
-    }
-
-    /*
-     - Wait for a group to be finished
-     - jobCount determines how many jobs to wait for
-       - If less than jobCount jobs have been given the group, this will block forever
-       - It doesn't matter if the jobs have already finished
-    */
-    void waitGroupComplete(TangleGroup* group, unsigned int jobCount) {
-      if (group != nullptr) {
-        internal::waitGroupComplete(group, jobCount);
-      } else {
-        tangleInternalDebug << "Group is a nullptr, skipping wait" << std::endl;
-      }
-    }
-
-    /*
-     - Check if at least one item of a group has finished
-       - May spuriously fail, returning false when work had finished
-     - Acts like synchronisation if successful, decreasing the group's counter
-       - A second call to a group with 1 complete work item would return false
-       - Using waitGroupComplete() at this point would block
-     - If unsuccessful, nothing in the group is modified
-    */
-    bool isSingleWorkComplete(TangleGroup* group) {
-      if (group != nullptr) {
-        return internal::isSingleWorkComplete(group);
-      }
-
-      tangleInternalDebug << "Group is a nullptr, skipping check" << std::endl;
-      return false;
-    }
-
-    /*
-     - Return the number of unfinished jobs in a group
-     - Successive calls should use the remaining jobs returned as the job count
-       - Subtract any synchronised / successfully queried jobs from this too
-     - Remaining work may be overestimated, but never underestimated
-     - Acts like synchronisation if successful, decreasing the group's counter
-     - If unsuccessful, nothing in the group is modified
-    */
-    unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount) {
-      if (group != nullptr) {
-        return internal::getRemainingWork(group, jobCount);
-      }
-
-      tangleInternalDebug << "Group is a nullptr, skipping query" << std::endl;
-      return jobCount;
     }
 
     /*

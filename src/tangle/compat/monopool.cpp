@@ -2,6 +2,7 @@
 
 #include "monopool.hpp"
 
+#include "../group.hpp"
 #include "../debug.hpp"
 #include "../logging.hpp"
 #include "../thread.hpp"

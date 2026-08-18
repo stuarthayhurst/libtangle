@@ -2,6 +2,7 @@
 #define TANGLE
 
 // IWYU pragma: begin_exports
+#include "group.hpp"
 #include "logging.hpp"
 #include "thread.hpp"
 

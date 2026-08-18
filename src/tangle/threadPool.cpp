@@ -16,6 +16,7 @@
 #include "threadPool.hpp"
 
 #include "debug.hpp"
+#include "group.hpp"
 #include "logging.hpp"
 #include "thread.hpp"
 
@@ -244,39 +245,6 @@ namespace tangle {
           .work = work, .userBuffer = userBuffer, .group = group,
           .stride = stride, .jobCount = newJobs, .threadPool = threadPool};
         submitMultipleJob(dataPtr);
-      }
-
-      //Wait for jobCount jobs in group to finish
-      void waitGroupComplete(TangleGroup* group, unsigned int jobCount) {
-        for (unsigned int i = 0; i < jobCount; i++) {
-          group->acquire();
-        }
-      }
-
-      /*
-       - Return true if at least one item of a group has finished
-         - May spuriously fail, returning false when work had finished
-       - Acts like synchronisation if successful, decreasing the group's counter
-      */
-      bool isSingleWorkComplete(TangleGroup* group) {
-        return group->try_acquire();
-      }
-
-      /*
-       - Return the number of unfinished jobs in a group
-         - This is jobCount - the number of successfully acquired jobs
-         - Remaining work may be overestimated, but never underestimated
-       - Acts like synchronisation if successful, decreasing the group's counter
-         - This means the return value can't be ignored if the group will be used for
-           synchronisation later on
-      */
-      unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount) {
-        unsigned int finishedJobs = 0;
-        while (group->try_acquire()) {
-          finishedJobs++;
-        };
-
-        return jobCount - finishedJobs;
       }
 
       /*

@@ -1,6 +1,7 @@
 #ifndef TANGLETHREADMONO
 #define TANGLETHREADMONO
 
+#include "../group.hpp"
 #include "../thread.hpp"
 #include "../visibility.hpp"
 
