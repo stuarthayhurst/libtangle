@@ -415,17 +415,12 @@ namespace tangle {
           }
         }
 
-        //Reset remaining data
+        //Delete thread pool components
         delete [] threadPool->workQueues;
         delete [] threadPool->threadArray;
         delete threadPool->threadSyncBarrier;
         delete threadPool->threadBlockBarrier;
         delete threadPool->threadUnblockBarrier;
-        threadPool->poolThreadCount = 0;
-        threadPool->queueLaneCount = 0;
-        threadPool->laneAssignMask = 0;
-        threadPool->nextQueueRead = 0;
-        threadPool->nextQueueWrite = 0;
 
         //Delete the thread pool data container
         delete threadPool;
