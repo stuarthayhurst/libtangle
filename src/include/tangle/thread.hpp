@@ -10,6 +10,7 @@ using TangleWork = void (*)(void* userPtr);
 namespace TANGLE_EXPOSED tangle {
   namespace thread {
     unsigned int getHardwareThreadCount();
+    unsigned int getExpectedThreadPoolSize(unsigned int threadCount);
     unsigned int getThreadPoolSize(void* threadPool);
 
     void* createThreadPoolInstance(unsigned int threadCount);

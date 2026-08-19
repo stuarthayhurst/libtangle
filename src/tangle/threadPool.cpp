@@ -212,6 +212,19 @@ namespace tangle {
         return std::thread::hardware_concurrency();
       }
 
+      //Calculate the real number of threads to be used
+      unsigned int getExpectedThreadPoolSize(unsigned int threadCount) {
+        //Default to creating a worker thread for every hardware thread
+        if (threadCount == 0) {
+          threadCount = getHardwareThreadCount();
+        }
+
+        //Cap at configured thread limit
+        threadCount = (threadCount > MAX_THREADS) ? MAX_THREADS : threadCount;
+
+        return threadCount;
+      }
+
       unsigned int getThreadPoolSize(void* threadPoolPtr) {
         return ((ThreadPool*)threadPoolPtr)->poolThreadCount;
       }
@@ -265,13 +278,10 @@ namespace tangle {
         //Create a new thread pool
         ThreadPool* const threadPool = new ThreadPool;
 
-        //Default to creating a worker thread for every hardware thread
-        if (threadCount == 0) {
-          threadCount = getHardwareThreadCount();
-        }
+        //Calculate the real thread count
+        threadCount = getExpectedThreadPoolSize(threadCount);
 
-        //Cap at configured thread limit, allocate memory for pool
-        threadCount = (threadCount > MAX_THREADS) ? MAX_THREADS : threadCount;
+        //Allocate memory for the pool
         tangleInternalDebug << "Creating thread pool with " << threadCount \
                             << " thread(s)" << std::endl;
         threadPool->threadArray = new std::thread[threadCount];

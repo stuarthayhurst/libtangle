@@ -18,6 +18,11 @@ namespace tangle {
       return internal::getHardwareThreadCount();
     }
 
+    //Return the expected number of threads for a thread pool
+    unsigned int getExpectedThreadPoolSize(unsigned int threadCount) {
+      return internal::getExpectedThreadPoolSize(threadCount);
+    }
+
     //Return the number of threads in the given pool
     unsigned int getThreadPoolSize(void* threadPool) {
       return internal::getThreadPoolSize(threadPool);

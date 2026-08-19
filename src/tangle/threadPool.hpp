@@ -8,6 +8,7 @@ namespace TANGLE_INTERNAL tangle {
   namespace thread {
     namespace internal {
       unsigned int getHardwareThreadCount();
+      unsigned int getExpectedThreadPoolSize(unsigned int threadCount);
       unsigned int getThreadPoolSize(void* threadPoolPtr);
 
       void* createThreadPoolInstance(unsigned int threadCount);
