@@ -23,6 +23,9 @@
 /*
  - Implements the core thread pool functionality internally
  - Each thread pool has multiple queues, cycling between them for new jobs
+   - The requested thread count is capped at 512
+   - The adjusted thread count is rounded to nearest power of 2 greater than or equal to it, then
+     doubled to get the queue lane count
  - Each queue isn't lock free, but jobs can be submitted as a batch to mitigate this
 */
 
