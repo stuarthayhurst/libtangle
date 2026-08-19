@@ -50,6 +50,7 @@
       - `HEADER_DIR` - Install libtangle headers to a different location
       - `PKG_CONF_DIR` - Install `tangle.pc` to a different location
     - `TIDY` - Override default choice for `clang-tidy`
+    - `DISABLE_MONO_POOL`: `true / false` - Disables the legacy single thread pool API
 
 ## Debug mode:
   - To compile in debug mode, use `make debug`, `make debug-all` or `DEBUG=true make ...`

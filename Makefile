@@ -106,6 +106,10 @@ ifneq ($(VALGRIND_SAFE),true)
   endif
 endif
 
+ifeq ($(DISABLE_MONO_POOL),true)
+  CXXFLAGS += -DENABLE_MONO_POOL=0
+endif
+
 #Fetch library dependencies and flags from tangle.pc
 LDFLAGS_PRIVATE := $(shell sed -ne 's/^.*Libs.private: //p' data/tangle.pc)
 CFLAGS_PRIVATE := $(shell sed -ne 's/^.*Cflags.private: //p' data/tangle.pc)

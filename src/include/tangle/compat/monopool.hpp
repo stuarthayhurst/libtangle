@@ -1,6 +1,14 @@
 #ifndef TANGLETHREADMONO
 #define TANGLETHREADMONO
 
+//Enable legacy single thread pool API if not explicitly disabled
+#ifndef ENABLE_MONO_POOL
+//NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define ENABLE_MONO_POOL 1
+#endif
+
+#if ENABLE_MONO_POOL == 1
+
 #include "../group.hpp"
 #include "../thread.hpp"
 #include "../visibility.hpp"
@@ -25,5 +33,7 @@ namespace TANGLE_EXPOSED tangle {
     void finishWork();
   }
 }
+
+#endif
 
 #endif

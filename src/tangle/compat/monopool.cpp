@@ -2,6 +2,8 @@
 
 #include "monopool.hpp"
 
+#if ENABLE_MONO_POOL == 1
+
 #include "../group.hpp"
 #include "../debug.hpp"
 #include "../logging.hpp"
@@ -168,3 +170,5 @@ namespace tangle {
     }
   }
 }
+
+#endif
