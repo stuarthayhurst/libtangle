@@ -31,6 +31,9 @@ namespace tests {
   bool testCreateBlockBlockSubmitUnblockDestroy(unsigned int jobCount);
   bool testCreateBlockUnblockUnblockSubmitDestroy(unsigned int jobCount);
 
+  //Multi-pool tests
+  bool testPingPongPools(unsigned int jobCount);
+
   //Confirm functionality
   bool testCreateUnblockSubmitDestroy(unsigned int jobCount);
 }

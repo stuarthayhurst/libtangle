@@ -62,6 +62,9 @@ namespace {
      DEFAULT},
     {"Testing unblock without block", tests::testCreateUnblockSubmitDestroy, DEFAULT},
 
+    //Multi-pool tests
+    {"Testing multi-pool ping pong", tests::testPingPongPools, DEFAULT},
+
     //Confirm functionality
     {"Double-checking standard submit, wait, destroy", tests::testCreateSubmitWaitDestroy, DEFAULT}
   };

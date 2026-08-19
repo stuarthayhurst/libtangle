@@ -57,6 +57,17 @@ namespace tests {
       const std::atomic_flag* const flagPtr = (std::atomic_flag*)userPtr;
       flagPtr->wait(false);
     }
+
+    void pingPongTask(void* userPtr) {
+      PingPongData* const pingPongData = (PingPongData*)userPtr;
+
+      *(pingPongData->values++) = 1;
+      if (pingPongData->totalSubmitted != pingPongData->targetSubmitted) {
+        pingPongData->totalSubmitted++;
+        tangle::thread::submitWork(pingPongTask, pingPongData->otherData,
+                                   pingPongData->syncPtr, pingPongData->otherPool);
+      }
+    }
   }
 
   namespace common {
@@ -69,8 +80,22 @@ namespace tests {
       return true;
     }
 
+    void* createThreadPoolInstance(unsigned int threadCount) {
+      void* const threadPool = tangle::thread::createThreadPoolInstance(threadCount);
+      if (threadPool == nullptr) {
+        tangle::utils::error << "Failed to create thread pool, exiting" << std::endl;
+        return nullptr;
+      }
+
+      return threadPool;
+    }
+
     void destroyThreadPool() {
       tangle::thread::destroyThreadPool();
+    }
+
+    void destroyThreadPool(void* threadPool) {
+      tangle::thread::destroyThreadPool(threadPool);
     }
 
     tests::utils::Timer* createTimers() {

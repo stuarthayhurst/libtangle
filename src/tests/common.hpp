@@ -35,6 +35,16 @@ namespace tests {
       unsigned int* values;
     };
 
+    struct PingPongData {
+      TangleGroup* syncPtr;
+      void* otherPool;
+      PingPongData* otherData;
+
+      std::atomic<unsigned int> totalSubmitted;
+      unsigned int targetSubmitted;
+      unsigned int* values;
+    };
+
     void shortTask(void* userPtr);
     void resubmitTask(void* userPtr);
     void chainTask(void* userPtr);
@@ -42,11 +52,15 @@ namespace tests {
     void loggingTask(void* userPtr);
 
     void blockingTask(void* userPtr);
+
+    void pingPongTask(void* userPtr);
   }
 
   namespace common {
     bool createThreadPool(unsigned int threadCount);
+    void* createThreadPoolInstance(unsigned int threadCount);
     void destroyThreadPool();
+    void destroyThreadPool(void* threadPool);
 
     tests::utils::Timer* createTimers();
     void destroyTimers(tests::utils::Timer* timers);
