@@ -33,6 +33,7 @@ namespace tests {
 
   //Multi-pool tests
   bool testPingPongPools(unsigned int jobCount);
+  bool testSuspendedJob(unsigned int jobCount);
 
   //Confirm functionality
   bool testCreateUnblockSubmitDestroy(unsigned int jobCount);

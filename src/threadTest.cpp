@@ -64,6 +64,7 @@ namespace {
 
     //Multi-pool tests
     {"Testing multi-pool ping pong", tests::testPingPongPools, DEFAULT},
+    {"Testing suspended jobs", tests::testSuspendedJob, DEFAULT},
 
     //Confirm functionality
     {"Double-checking standard submit, wait, destroy", tests::testCreateSubmitWaitDestroy, DEFAULT}
