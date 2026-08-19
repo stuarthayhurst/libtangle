@@ -29,7 +29,7 @@ namespace tests {
 
     //Submit logging jobs
     tests::common::resetTimers(timers);
-    tangle::thread::submitMultiple(tests::common::loggingTask, &loggingData, 0,
+    tangle::thread::submitMultiple(tests::common::loggingTask, &loggingData,
                                    &group, jobCount, NO_GROUP);
     tests::common::finishSubmitTimer(timers);
 
