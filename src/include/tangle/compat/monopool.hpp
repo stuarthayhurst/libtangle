@@ -25,8 +25,12 @@ namespace TANGLE_EXPOSED tangle {
     void submitMultiple(TangleWork work, void* userBuffer, int stride,
                         TangleGroup* group, unsigned int jobCount,
                         TangleGroup* submitGroup);
+    void submitMultiple(TangleWork work, void* userPtr, TangleGroup* group,
+                        unsigned int jobCount, TangleGroup* submitGroup);
     void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
                             TangleGroup* group, unsigned int jobCount);
+    void submitMultipleSync(TangleWork work, void* userPtr, TangleGroup* group,
+                            unsigned int jobCount);
 
     void blockThreads();
     void unblockThreads();

@@ -124,6 +124,16 @@ namespace tangle {
       internal::submitMultiple(work, userBuffer, stride, group, jobCount, submitGroup, threadPool);
     }
 
+    /*
+     - Same as the standard submitMultiple(), but all jobs share a user-provided pointer
+       instead of a buffer
+    */
+    void submitMultiple(TangleWork work, void* userPtr,
+                        TangleGroup* group, unsigned int jobCount,
+                        TangleGroup* submitGroup) {
+      internal::submitMultiple(work, userPtr, 0, group, jobCount, submitGroup, threadPool);
+    }
+
     //Synchronous version of submitMultiple()
     void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
                             TangleGroup* group, unsigned int jobCount) {
@@ -133,6 +143,15 @@ namespace tangle {
       }
 
       internal::submitMultipleSync(work, userBuffer, stride, group, jobCount, threadPool);
+    }
+
+    /*
+     - Same as the synchronous submitMultiple(), but all jobs share a user-provided pointer
+       instead of a buffer
+    */
+    void submitMultipleSync(TangleWork work, void* userPtr, TangleGroup* group,
+                            unsigned int jobCount) {
+      internal::submitMultipleSync(work, userPtr, 0, group, jobCount, threadPool);
     }
 
     /*
