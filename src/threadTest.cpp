@@ -15,7 +15,7 @@ namespace {
   enum JobCountMode : unsigned char {
     DEFAULT,
     SINGLE,
-    POOL_SIZE,
+    DEFAULT_POOL_SIZE,
     HARDWARE_SIZE_4
   };
 
@@ -39,7 +39,7 @@ namespace {
     //Submit multiple tests
     {"Testing submit multiple", tests::testSubmitMultiple, DEFAULT},
     {"Testing submit multiple, minimal", tests::testSubmitMultiple, SINGLE},
-    {"Testing submit multiple, pool size", tests::testSubmitMultiple, POOL_SIZE},
+    {"Testing submit multiple, pool size", tests::testSubmitMultiple, DEFAULT_POOL_SIZE},
     {"Testing submit multiple (4x regular over 4 batches)", tests::testSubmitMultipleMultiple,
      DEFAULT},
     {"Testing submit multiple, synchronous submit", tests::testSubmitMultipleSyncSubmit, DEFAULT},
@@ -89,8 +89,8 @@ namespace {
     case SINGLE:
       jobCount = 1;
       break;
-    case POOL_SIZE:
-      jobCount = tangle::thread::getThreadPoolSize();
+    case DEFAULT_POOL_SIZE:
+      jobCount = tangle::thread::getExpectedThreadPoolSize(0);
       break;
     case HARDWARE_SIZE_4:
       jobCount = tangle::thread::getHardwareThreadCount() * 4;
