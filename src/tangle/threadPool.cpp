@@ -4,10 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
-#include <limits>
-#include <mutex>
-#include <queue>
-#include <semaphore>
 #include <system_error>
 #include <thread>
 
@@ -18,6 +14,7 @@
 #include "debug.hpp"
 #include "group.hpp"
 #include "logging.hpp"
+#include "queue.hpp"
 #include "thread.hpp"
 
 /*
@@ -30,60 +27,6 @@
 */
 
 static constexpr unsigned int MAX_THREADS = 512;
-
-namespace {
-  struct WorkItem {
-    TangleWork work;
-    void* userPtr;
-    TangleGroup* group;
-  };
-
-  /*
-   - Implements a thread-safe queue to store and retrieve jobs from
-   - Job pushes and pops all use the mutex, job pops wait on the semaphore
-     for work to be available
-  */
-  class WorkQueue {
-  private:
-    std::queue<WorkItem> queue;
-    std::mutex queueLock;
-    std::counting_semaphore<std::numeric_limits<int32_t>::max()> jobCount{0};
-
-  public:
-    void push(TangleWork work, void* userPtr, TangleGroup* group) {
-      this->queueLock.lock();
-
-      this->queue.push({.work = work, .userPtr = userPtr, .group = group});
-
-      this->queueLock.unlock();
-      this->jobCount.release();
-    }
-
-    void pushMultiple(TangleWork work, void* userBuffer, int stride,
-                      TangleGroup* group, unsigned int count) {
-      this->queueLock.lock();
-
-      //Add multiple jobs in a single pass
-      for (std::size_t i = 0; i < count; i++) {
-        this->queue.push({.work = work, .userPtr = (char*)userBuffer + (i * stride),
-                          .group = group});
-      }
-
-      this->queueLock.unlock();
-      this->jobCount.release(count);
-    }
-
-    void pop(WorkItem* workItemPtr) {
-      this->jobCount.acquire();
-      this->queueLock.lock();
-
-      *workItemPtr = this->queue.front();
-      this->queue.pop();
-
-      this->queueLock.unlock();
-    }
-  };
-}
 
 namespace tangle {
   namespace thread {
@@ -110,7 +53,7 @@ namespace tangle {
            - Treat workQueues as a circular buffer, with separate heads
              for job pushes and pops
           */
-          WorkQueue* workQueues;
+          tangle::internal::WorkQueue* workQueues;
           unsigned int queueLaneCount = 0;
           unsigned int laneAssignMask = 0;
           std::atomic<uintmax_t> nextQueueRead = 0;
@@ -124,7 +67,9 @@ namespace tangle {
           tangleInternalDebug << "Started worker thread (ID " << gettid() \
                               << ")" << std::endl;
 
-          WorkItem workItem = {.work = nullptr, .userPtr = nullptr, .group = nullptr};
+          tangle::internal::WorkItem workItem = {
+            .work = nullptr, .userPtr = nullptr, .group = nullptr
+          };
           while (threadPool->stayAlive) {
             //Wait for a job to be available, then return it
             const uintmax_t targetQueue = (threadPool->nextQueueRead++) & threadPool->laneAssignMask;
@@ -297,7 +242,7 @@ namespace tangle {
         //Create the queues
         threadPool->nextQueueRead = 0;
         threadPool->nextQueueWrite = 0;
-        threadPool->workQueues = new WorkQueue[threadPool->queueLaneCount];
+        threadPool->workQueues = new tangle::internal::WorkQueue[threadPool->queueLaneCount];
 
         //Prepare thread finish barrier
         threadPool->threadSyncBarrier = new std::barrier{threadCount};
