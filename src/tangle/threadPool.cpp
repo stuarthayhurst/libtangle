@@ -135,7 +135,8 @@ namespace tangle {
             const std::size_t jobSize = std::size_t(baseBatchSize) * submitData->stride;
             for (unsigned int i = 0; i < threadPool->queueLaneCount; i++) {
               threadPool->workQueues[i].pushMultiple(submitData->work, submitData->userBuffer,
-                                         submitData->stride, submitData->group, baseBatchSize);
+                                                     submitData->stride, submitData->group,
+                                                     baseBatchSize);
               submitData->userBuffer = (char*)submitData->userBuffer + jobSize;
             }
           }
@@ -145,7 +146,7 @@ namespace tangle {
           for (unsigned int i = 0; i < remainingJobs; i++) {
             const uintmax_t targetQueue = (threadPool->nextQueueWrite++) & threadPool->laneAssignMask;
             threadPool->workQueues[targetQueue].push(submitData->work, (char*)submitData->userBuffer,
-                                         submitData->group);
+                                                     submitData->group);
             submitData->userBuffer = (char*)submitData->userBuffer + submitData->stride;
           }
 
