@@ -3,8 +3,8 @@
 #include "thread.hpp"
 
 #include "group.hpp"
+#include "internal/threadPool.hpp"
 #include "logging.hpp"
-#include "threadPool.hpp"
 
 /*
  - Connects exposed functions to the internal thread pool functions

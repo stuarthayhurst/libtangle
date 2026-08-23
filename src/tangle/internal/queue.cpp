@@ -2,8 +2,8 @@
 
 #include "queue.hpp"
 
-#include "group.hpp"
-#include "thread.hpp"
+#include "../group.hpp"
+#include "../thread.hpp"
 
 /*
  - Implements a thread-safe queue to store and retrieve jobs from

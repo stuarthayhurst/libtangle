@@ -4,7 +4,7 @@
 
 #include "debug.hpp"
 
-#include "logging.hpp"
+#include "../logging.hpp"
 
 //NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-interfaces-global-init)
 tangle::utils::OutputHelper tangleInternalDebug(std::cout, "DEBUG: ",

@@ -5,10 +5,10 @@
 #if ENABLE_MONO_POOL == 1
 
 #include "../group.hpp"
-#include "../debug.hpp"
 #include "../logging.hpp"
 #include "../thread.hpp"
-#include "../threadPool.hpp"
+#include "../internal/debug.hpp"
+#include "../internal/threadPool.hpp"
 
 /*
  - Implements the legacy single thread pool API

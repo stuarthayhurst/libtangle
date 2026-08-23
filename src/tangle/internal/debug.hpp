@@ -6,7 +6,7 @@
  - Expressions won't even be evaluated, logging to debug is free in production
 */
 #ifdef TANGLE_DEBUG
-  #include "logging.hpp"
+  #include "../logging.hpp"
   //NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
   extern tangle::utils::OutputHelper tangleInternalDebug;
 #else

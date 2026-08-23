@@ -1,8 +1,8 @@
 #ifndef INTERNALTHREADPOOL
 #define INTERNALTHREADPOOL
 
-#include "thread.hpp"
-#include "visibility.hpp"
+#include "../thread.hpp"
+#include "../visibility.hpp"
 
 namespace TANGLE_INTERNAL tangle {
   namespace thread {

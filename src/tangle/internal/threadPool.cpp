@@ -11,11 +11,12 @@
 
 #include "threadPool.hpp"
 
-#include "debug.hpp"
-#include "group.hpp"
-#include "logging.hpp"
 #include "queue.hpp"
-#include "thread.hpp"
+
+#include "../group.hpp"
+#include "../internal/debug.hpp"
+#include "../logging.hpp"
+#include "../thread.hpp"
 
 /*
  - Implements the core thread pool functionality internally

@@ -2,7 +2,7 @@
 
 #include "group.hpp"
 
-#include "debug.hpp"
+#include "internal/debug.hpp"
 
 /*
  - Implements job synchronisation using TangleGroups

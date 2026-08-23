@@ -7,9 +7,9 @@
 #include <queue>
 #include <semaphore>
 
-#include "group.hpp"
-#include "thread.hpp"
-#include "visibility.hpp"
+#include "../group.hpp"
+#include "../thread.hpp"
+#include "../visibility.hpp"
 
 namespace TANGLE_INTERNAL tangle {
   namespace internal {
