@@ -53,7 +53,7 @@ namespace tangle {
 
     /*
      - Submit a job to the given thread pool, with a user-provided pointer
-       - userPtr may be a nullptr
+       - userPtr may be NO_USERPTR (nullptr)
      - Do not submit jobs that block conditionally on other jobs
     */
     void submitWork(TangleWork work, void* const userPtr, void* const threadPool) {
@@ -62,10 +62,10 @@ namespace tangle {
 
     /*
      - Submit a job to the given thread pool, with a user-provided pointer and group
-       - group should either be a nullptr, or a TangleGroup{0}
+       - group should either be NO_GROUP (nullptr), or a TangleGroup{0}
          - A group can be used between multiple calls, but waiting on it will block
            until all work in the group is done
-       - userPtr may be a nullptr
+       - userPtr may be NO_USERPTR (nullptr)
      - Do not submit jobs that block conditionally on other jobs
     */
     void submitWork(TangleWork work, void* const userPtr,
@@ -75,11 +75,12 @@ namespace tangle {
 
     /*
      - Submit multiple jobs to the given thread pool, with a user-provided buffer and group
-       - userBuffer should either be a nullptr, or an array of data to be split between jobs
+       - userBuffer should either be NO_USERBUFFER (nullptr), or an array of data
+         to be split between jobs
          - Each job will receive a section according to (userBuffer + job index * stride)
          - stride should be the size of each section to give to a job, in bytes
-       - group should either be a nullptr, or a TangleGroup{0}
-       - submitGroup should either be a nullptr, or a TangleGroup{0}
+       - group should either be NO_GROUP (nullptr), or a TangleGroup{0}
+       - submitGroup should either be NO_GROUP (nullptr), or a TangleGroup{0}
        - jobCount specifies how many times to submit the job
      - Jobs are submitted asynchronously, waiting on submitGroup for 1 job can be used
        to wait for the submit to be complete
