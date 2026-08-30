@@ -13,7 +13,7 @@ namespace TANGLE_EXPOSED tangle {
     unsigned int getExpectedThreadPoolSize(unsigned int threadCount);
     unsigned int getThreadPoolSize(void* threadPool);
 
-    void* createThreadPoolInstance(unsigned int threadCount);
+    [[nodiscard]] void* createThreadPoolInstance(unsigned int threadCount);
     void destroyThreadPool(void* threadPool);
 
     void submitWork(TangleWork work, void* userPtr, void* threadPool);
