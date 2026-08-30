@@ -63,7 +63,7 @@ namespace tangle {
       }
 
       namespace {
-        void runWorker(ThreadPool* threadPool) {
+        void runWorker(ThreadPool* const threadPool) {
           //Ask the system for the thread ID, since it's more useful for debugging
           tangleInternalDebug << "Started worker thread (ID " << gettid() \
                               << ")" << std::endl;
@@ -100,15 +100,15 @@ namespace tangle {
           }
         }
 
-        void wakeThreads(ThreadPool* threadPool) {
+        void wakeThreads(ThreadPool* const threadPool) {
           for (unsigned int i = 0; i < threadPool->poolThreadCount; i++) {
             internal::submitWork(nullptr, nullptr, nullptr, threadPool);
           }
         }
 
         //Simple job to synchronise threads
-        void finishSyncJob(void* threadPoolPtr) {
-          ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
+        void finishSyncJob(void* const threadPoolPtr) {
+          const ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
           threadPool->threadSyncBarrier->arrive_and_wait();
         }
       }
@@ -124,7 +124,7 @@ namespace tangle {
           ThreadPool* threadPool;
         };
 
-        void submitMultipleJob(void* rawSubmitData) {
+        void submitMultipleJob(void* const rawSubmitData) {
           SubmitData* const submitData = (SubmitData*)rawSubmitData;
           ThreadPool* const threadPool = submitData->threadPool;
 
@@ -172,12 +172,13 @@ namespace tangle {
         return threadCount;
       }
 
-      unsigned int getThreadPoolSize(void* threadPoolPtr) {
+      unsigned int getThreadPoolSize(void* const threadPoolPtr) {
         return ((ThreadPool*)threadPoolPtr)->poolThreadCount;
       }
 
       //Submit a job to the next queue of a given thread pool
-      void submitWork(TangleWork work, void* userPtr, TangleGroup* group, void* threadPoolPtr) {
+      void submitWork(TangleWork work, void* const userPtr,
+                      TangleGroup* const group, void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         //Add work to the next queue
@@ -191,9 +192,9 @@ namespace tangle {
          the overhead to be mitigated by useful work
        - All work is submitted to the specified thread pool
       */
-      void submitMultiple(TangleWork work, void* userBuffer, int stride,
-                          TangleGroup* group, unsigned int newJobs,
-                          TangleGroup* submitGroup, void* threadPoolPtr) {
+      void submitMultiple(TangleWork work, void* const userBuffer, int stride,
+                          TangleGroup* const group, unsigned int newJobs,
+                          TangleGroup* const submitGroup, void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         //Pack the data into the expected format and submit the job
@@ -204,9 +205,9 @@ namespace tangle {
       }
 
       //Synchronous version of submitMultiple()
-      void submitMultipleSync(TangleWork work, void* userBuffer,
-                              int stride, TangleGroup* group, unsigned int newJobs,
-                              void* threadPoolPtr) {
+      void submitMultipleSync(TangleWork work, void* const userBuffer, int stride,
+                              TangleGroup* const group, unsigned int newJobs,
+                              void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         //Pack the data into the expected format and just execute the job immediately
@@ -270,7 +271,7 @@ namespace tangle {
        - Create a fake job for each thread in case they're asleep
        - Return once the threads are all blocked
       */
-      void blockThreads(void* threadPoolPtr) {
+      void blockThreads(void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         if (!threadPool->threadsBlocked) {
@@ -290,7 +291,7 @@ namespace tangle {
        - Instruct all threads of a given thread pool to resume execution
        - Return as soon as all threads have woken up
       */
-      void unblockThreads(void* threadPoolPtr) {
+      void unblockThreads(void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         if (threadPool->threadsBlocked) {
@@ -308,7 +309,7 @@ namespace tangle {
        - Complete all work already queued in a given thread pool
        - Return when the work has finished
       */
-      void finishWork(void* threadPoolPtr) {
+      void finishWork(void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
 
         TangleGroup group{0};
@@ -323,7 +324,7 @@ namespace tangle {
        - Finish work already in the thread pool
        - Destroy the thread pool
       */
-      void destroyThreadPool(void* threadPoolPtr) {
+      void destroyThreadPool(void* const threadPoolPtr) {
         ThreadPool* const threadPool = (ThreadPool*)threadPoolPtr;
         tangleInternalDebug << "Destroying thread pool" << std::endl;
 

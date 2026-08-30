@@ -20,16 +20,16 @@ namespace tests {
 //NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-interfaces-global-init)
 
   namespace common {
-    void shortTask(void* userPtr) {
+    void shortTask(void* const userPtr) {
       *(unsigned int*)userPtr = 1;
     }
 
-    void resubmitTask(void* userPtr) {
+    void resubmitTask(void* const userPtr) {
       const ResubmitData* const dataPtr = (ResubmitData*)userPtr;
       tangle::thread::submitWork(shortTask, dataPtr->writePtr, dataPtr->syncPtr);
     }
 
-    void chainTask(void* userPtr) {
+    void chainTask(void* const userPtr) {
       ChainData* const dataPtr = (ChainData*)userPtr;
       *(dataPtr->values++) = 1;
       if (dataPtr->totalSubmitted != dataPtr->targetSubmitted) {
@@ -38,7 +38,7 @@ namespace tests {
       }
     }
 
-    void loggingTask(void* userPtr) {
+    void loggingTask(void* const userPtr) {
       LoggingData* const dataPtr = (LoggingData*)userPtr;
 
       const unsigned int index = dataPtr->index++;
@@ -53,12 +53,12 @@ namespace tests {
       *valuePtr = 1;
     }
 
-    void blockingTask(void* userPtr) {
+    void blockingTask(void* const userPtr) {
       const std::atomic_flag* const flagPtr = (std::atomic_flag*)userPtr;
       flagPtr->wait(false);
     }
 
-    void pingPongTask(void* userPtr) {
+    void pingPongTask(void* const userPtr) {
       PingPongData* const pingPongData = (PingPongData*)userPtr;
 
       *(pingPongData->values++) = 1;
@@ -94,7 +94,7 @@ namespace tests {
       tangle::thread::destroyThreadPool();
     }
 
-    void destroyThreadPool(void* threadPool) {
+    void destroyThreadPool(void* const threadPool) {
       tangle::thread::destroyThreadPool(threadPool);
     }
 
@@ -102,30 +102,30 @@ namespace tests {
       return new tests::utils::Timer[3];
     }
 
-    void destroyTimers(tests::utils::Timer* timers) {
+    void destroyTimers(const tests::utils::Timer* const timers) {
       delete [] timers;
     }
 
-    void resetTimers(tests::utils::Timer* timers) {
+    void resetTimers(tests::utils::Timer* const timers) {
       for (int i = 0; i < 3; i++) {
         timers[i].reset();
       }
     }
 
-    void resumeSubmitTimer(tests::utils::Timer* timers) {
+    void resumeSubmitTimer(tests::utils::Timer* const timers) {
       timers[0].unpause();
     }
 
-    void finishSubmitTimer(tests::utils::Timer* timers) {
+    void finishSubmitTimer(tests::utils::Timer* const timers) {
       timers[0].pause();
     }
 
-    void finishExecutionTimers(tests::utils::Timer* timers) {
+    void finishExecutionTimers(tests::utils::Timer* const timers) {
       timers[1].pause();
       timers[2].pause();
     }
 
-    void printTimers(tests::utils::Timer* timers) {
+    void printTimers(const tests::utils::Timer* const timers) {
       tangle::utils::normal << "  Submit done : " << timers[0].getTime() << "s" << std::endl;
       tangle::utils::normal << "  Finish work : " << timers[1].getTime() << "s" << std::endl;
       tangle::utils::normal << "  Total time  : " << timers[2].getTime() << "s" << std::endl;
@@ -135,23 +135,24 @@ namespace tests {
       return new unsigned int[jobCount]{};
     }
 
-    void destroyValues(const unsigned int* values) {
+    void destroyValues(const unsigned int* const values) {
       delete [] values;
     }
 
-    void submitShortJobs(unsigned int jobCount, unsigned int* values) {
+    void submitShortJobs(unsigned int jobCount, unsigned int* const values) {
       for (unsigned int i = 0; i < jobCount; i++) {
         tangle::thread::submitWork(shortTask, &values[i], NO_GROUP);
       }
     }
 
-    void submitShortSyncJobs(unsigned int jobCount, unsigned int* values, TangleGroup* group) {
+    void submitShortSyncJobs(unsigned int jobCount, unsigned int* const values,
+                             TangleGroup* const group) {
       for (unsigned int i = 0; i < jobCount; i++) {
         tangle::thread::submitWork(shortTask, &values[i], group);
       }
     }
 
-    bool verifyWork(unsigned int jobCount, const unsigned int* values) {
+    bool verifyWork(unsigned int jobCount, const unsigned int* const values) {
       for (unsigned int i = 0; i < jobCount; i++) {
         if (values[i] != 1) {
           tangle::utils::error << "Failed to verify work (index " << i << ")" << std::endl;

@@ -13,7 +13,7 @@
 namespace tangle {
   namespace thread {
     namespace internal {
-      void waitGroupComplete(TangleGroup* group, unsigned int jobCount) {
+      void waitGroupComplete(TangleGroup* const group, unsigned int jobCount) {
         for (unsigned int i = 0; i < jobCount; i++) {
           group->acquire();
         }
@@ -30,7 +30,7 @@ namespace tangle {
        - If less than jobCount jobs have been given the group, this will block forever
        - It doesn't matter if the jobs have already finished
     */
-    void waitGroupComplete(TangleGroup* group, unsigned int jobCount) {
+    void waitGroupComplete(TangleGroup* const group, unsigned int jobCount) {
       if (group != nullptr) {
         internal::waitGroupComplete(group, jobCount);
       } else {
@@ -46,7 +46,7 @@ namespace tangle {
        - Using waitGroupComplete() at this point would block
      - If unsuccessful, nothing in the group is modified
     */
-    bool isSingleWorkComplete(TangleGroup* group) {
+    bool isSingleWorkComplete(TangleGroup* const group) {
       if (group != nullptr) {
         return group->try_acquire();
       }
@@ -66,7 +66,7 @@ namespace tangle {
            synchronisation later on
      - If unsuccessful, nothing in the group is modified
     */
-    unsigned int getRemainingWork(TangleGroup* group, unsigned int jobCount) {
+    unsigned int getRemainingWork(TangleGroup* const group, unsigned int jobCount) {
       if (group != nullptr) {
         unsigned int finishedJobs = 0;
         while (group->try_acquire()) {

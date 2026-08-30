@@ -63,12 +63,12 @@ namespace tests {
     void destroyThreadPool(void* threadPool);
 
     tests::utils::Timer* createTimers();
-    void destroyTimers(tests::utils::Timer* timers);
+    void destroyTimers(const tests::utils::Timer* timers);
     void resetTimers(tests::utils::Timer* timers);
     void resumeSubmitTimer(tests::utils::Timer* timers);
     void finishSubmitTimer(tests::utils::Timer* timers);
     void finishExecutionTimers(tests::utils::Timer* timers);
-    void printTimers(tests::utils::Timer* timers);
+    void printTimers(const tests::utils::Timer* timers);
 
     unsigned int* createValues(unsigned int jobCount);
     void destroyValues(const unsigned int* values);

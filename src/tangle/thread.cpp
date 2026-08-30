@@ -24,7 +24,7 @@ namespace tangle {
     }
 
     //Return the number of threads in the given pool
-    unsigned int getThreadPoolSize(void* threadPool) {
+    unsigned int getThreadPoolSize(void* const threadPool) {
       return internal::getThreadPoolSize(threadPool);
     }
 
@@ -47,7 +47,7 @@ namespace tangle {
      - If jobs in the queue may submit more work, they must be completed before calling this
      - This will block until the queued jobs complete
     */
-    void destroyThreadPool(void* threadPool) {
+    void destroyThreadPool(void* const threadPool) {
       internal::destroyThreadPool(threadPool);
     }
 
@@ -56,7 +56,7 @@ namespace tangle {
        - userPtr may be a nullptr
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr, void* threadPool) {
+    void submitWork(TangleWork work, void* const userPtr, void* const threadPool) {
       internal::submitWork(work, userPtr, nullptr, threadPool);
     }
 
@@ -68,7 +68,8 @@ namespace tangle {
        - userPtr may be a nullptr
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr, TangleGroup* group, void* threadPool) {
+    void submitWork(TangleWork work, void* const userPtr,
+                    TangleGroup* const group, void* const threadPool) {
       internal::submitWork(work, userPtr, group, threadPool);
     }
 
@@ -86,9 +87,9 @@ namespace tangle {
        - This may be a while, use submitMultipleSync() instead of immediately waiting
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitMultiple(TangleWork work, void* userBuffer, int stride,
-                        TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup, void* threadPool) {
+    void submitMultiple(TangleWork work, void* const userBuffer, int stride,
+                        TangleGroup* const group, unsigned int jobCount,
+                        TangleGroup* const submitGroup, void* const threadPool) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
@@ -101,15 +102,16 @@ namespace tangle {
      - Same as the standard submitMultiple(), but all jobs share a user-provided pointer
        instead of a buffer
     */
-    void submitMultiple(TangleWork work, void* userPtr,
-                        TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup, void* threadPool) {
+    void submitMultiple(TangleWork work, void* const userPtr,
+                        TangleGroup* const group, unsigned int jobCount,
+                        TangleGroup* const submitGroup, void* const threadPool) {
       internal::submitMultiple(work, userPtr, 0, group, jobCount, submitGroup, threadPool);
     }
 
     //Synchronous version of submitMultiple()
-    void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
-                            TangleGroup* group, unsigned int jobCount, void* threadPool) {
+    void submitMultipleSync(TangleWork work, void* const userBuffer, int stride,
+                            TangleGroup* const group, unsigned int jobCount,
+                            void* const threadPool) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
@@ -122,8 +124,9 @@ namespace tangle {
      - Same as the synchronous submitMultiple(), but all jobs share a user-provided pointer
        instead of a buffer
     */
-    void submitMultipleSync(TangleWork work, void* userPtr, TangleGroup* group,
-                            unsigned int jobCount, void* threadPool) {
+    void submitMultipleSync(TangleWork work, void* const userPtr,
+                            TangleGroup* const group, unsigned int jobCount,
+                            void* const threadPool) {
       internal::submitMultipleSync(work, userPtr, 0, group, jobCount, threadPool);
     }
 
@@ -132,7 +135,7 @@ namespace tangle {
      - Returns once all threads are blocked
      - This isn't thread safe, and must never be called from a job
     */
-    void blockThreads(void* threadPool) {
+    void blockThreads(void* const threadPool) {
       internal::blockThreads(threadPool);
     }
 
@@ -141,7 +144,7 @@ namespace tangle {
      - Returns once threads are have woken up
      - This isn't thread safe, and must never be called from a job
     */
-    void unblockThreads(void* threadPool) {
+    void unblockThreads(void* const threadPool) {
       internal::unblockThreads(threadPool);
     }
 
@@ -151,7 +154,7 @@ namespace tangle {
        - This includes submitMultiple(), which submits a job to submit the actual jobs
      - This isn't thread safe, and must never be called from a job
     */
-    void finishWork(void* threadPool) {
+    void finishWork(void* const threadPool) {
       internal::finishWork(threadPool);
     }
   }

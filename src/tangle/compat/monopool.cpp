@@ -81,7 +81,7 @@ namespace tangle {
      - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr) {
+    void submitWork(TangleWork work, void* const userPtr) {
       internal::submitWork(work, userPtr, nullptr, threadPool);
     }
 
@@ -94,7 +94,7 @@ namespace tangle {
      - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitWork(TangleWork work, void* userPtr, TangleGroup* group) {
+    void submitWork(TangleWork work, void* const userPtr, TangleGroup* const group) {
       internal::submitWork(work, userPtr, group, threadPool);
     }
 
@@ -113,30 +113,32 @@ namespace tangle {
      - createThreadPool() must be called before using this
      - Do not submit jobs that block conditionally on other jobs
     */
-    void submitMultiple(TangleWork work, void* userBuffer, int stride,
-                        TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup) {
+    void submitMultiple(TangleWork work, void* const userBuffer, int stride,
+                        TangleGroup* const group, unsigned int jobCount,
+                        TangleGroup* const submitGroup) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
       }
 
-      internal::submitMultiple(work, userBuffer, stride, group, jobCount, submitGroup, threadPool);
+      internal::submitMultiple(work, userBuffer, stride, group, jobCount,
+                               submitGroup, threadPool);
     }
 
     /*
      - Same as the standard submitMultiple(), but all jobs share a user-provided pointer
        instead of a buffer
     */
-    void submitMultiple(TangleWork work, void* userPtr,
-                        TangleGroup* group, unsigned int jobCount,
-                        TangleGroup* submitGroup) {
-      internal::submitMultiple(work, userPtr, 0, group, jobCount, submitGroup, threadPool);
+    void submitMultiple(TangleWork work, void* const userPtr,
+                        TangleGroup* const group, unsigned int jobCount,
+                        TangleGroup* const submitGroup) {
+      internal::submitMultiple(work, userPtr, 0, group, jobCount, submitGroup,
+                               threadPool);
     }
 
     //Synchronous version of submitMultiple()
-    void submitMultipleSync(TangleWork work, void* userBuffer, int stride,
-                            TangleGroup* group, unsigned int jobCount) {
+    void submitMultipleSync(TangleWork work, void* const userBuffer, int stride,
+                            TangleGroup* const group, unsigned int jobCount) {
       //Set stride to 0 when no data is passed
       if (userBuffer == nullptr) {
         stride = 0;
@@ -149,8 +151,8 @@ namespace tangle {
      - Same as the synchronous submitMultiple(), but all jobs share a user-provided pointer
        instead of a buffer
     */
-    void submitMultipleSync(TangleWork work, void* userPtr, TangleGroup* group,
-                            unsigned int jobCount) {
+    void submitMultipleSync(TangleWork work, void* const userPtr,
+                            TangleGroup* const group, unsigned int jobCount) {
       internal::submitMultipleSync(work, userPtr, 0, group, jobCount, threadPool);
     }
 

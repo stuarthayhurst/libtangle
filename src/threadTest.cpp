@@ -78,7 +78,7 @@ namespace {
     unsigned int total = 0;
   };
 
-  void runTest(const TestInfo& testInfo, unsigned int jobCount, TestStats* testStatsPtr) {
+  void runTest(const TestInfo& testInfo, unsigned int jobCount, TestStats* const testStatsPtr) {
     //Print the test title
     tangle::utils::normal << testInfo.title << std::endl;
 
