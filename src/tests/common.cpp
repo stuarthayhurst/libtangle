@@ -42,7 +42,7 @@ namespace tests {
       LoggingData* const dataPtr = (LoggingData*)userPtr;
 
       const unsigned int index = dataPtr->index++;
-      unsigned int* const valuePtr = &(dataPtr->values[index]);
+      unsigned int* const valuePtr = &dataPtr->values[index];
 
       outputTester << *valuePtr << " ";
       for (unsigned int i = 0; i < dataPtr->outputCount; i++) {
