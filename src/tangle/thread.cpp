@@ -109,7 +109,12 @@ namespace tangle {
       internal::submitMultiple(work, userPtr, 0, group, jobCount, submitGroup, threadPool);
     }
 
-    //Synchronous version of submitMultiple()
+    /*
+     - Synchronous version of submitMultiple()
+     - Jobs are submitted immediately, instead of waiting for the thread pool
+       to get around to the deferred submission job
+     - This is more efficient than submitMultiple() and immediately syncing
+    */
     void submitMultipleSync(TangleWork work, void* const userBuffer, int stride,
                             TangleGroup* const group, unsigned int jobCount,
                             void* const threadPool) {
