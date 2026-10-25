@@ -135,9 +135,12 @@ CLIENT_LDFLAGS := $(LDFLAGS) $(shell pkg-config $(CLIENT_PKG_CONF_ARGS) --libs $
 #Recipe-specific client arguments
 THREADTEST_EXTRA_LDFLAGS := -latomic
 
-#Helper to run the compiler or extract the command
-EXTRACT_SCRIPT := python3 extract-command.py
-EXTRACT := @function inline() { if [[ "$(DUMMY)" != "true" ]]; then echo "$(CXX) $$@"; $(CXX) $$@; else $(EXTRACT_SCRIPT) "$(BUILD_DIR)" $(CXX) $$@; fi }; inline
+#Helpers to run the compiler or extract the command, with synchronised output
+SYNC_SCRIPT := python3 scripts/run-sync-output.py $(BUILD_DIR)/compiler-sync
+EXTRACT_SCRIPT := python3 scripts/extract-command.py $(BUILD_DIR)
+EXTRACT_INLINE := function inline() { if [[ "$(DUMMY)" != "true" ]]; then $(SYNC_SCRIPT) $$@; else $(EXTRACT_SCRIPT) $$@; fi }; inline
+SYNC = @$(SYNC_SCRIPT)
+EXTRACT_SYNC = @$(EXTRACT_INLINE)
 
 # --------------------------------
 # Client build recipes
@@ -145,15 +148,15 @@ EXTRACT := @function inline() { if [[ "$(DUMMY)" != "true" ]]; then echo "$(CXX)
 
 $(BUILD_DIR)/threadTest: $(BUILD_DIR)/$(LIBRARY_NAME_FULL) $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS)
 	@mkdir -p "$(BUILD_DIR)"
-	$(CXX) -o "$(BUILD_DIR)/threadTest" $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS) $(CLIENT_CXXFLAGS) $(CLIENT_LDFLAGS) $(THREADTEST_EXTRA_LDFLAGS)
+	$(SYNC) $(CXX) -o "$(BUILD_DIR)/threadTest" $(OBJECT_DIR)/threadTest.o $(TEST_OBJECTS) $(CLIENT_CXXFLAGS) $(CLIENT_LDFLAGS) $(THREADTEST_EXTRA_LDFLAGS)
 
 #Recipe dependencies need to be mirrored in the corresponding lint targets
 $(OBJECT_DIR)/tests/%.o: ./src/tests/%.cpp $(TEST_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
 	@mkdir -p "$$(dirname $@)"
-	$(EXTRACT) "$<" -c $(CLIENT_CXXFLAGS) -o "$@"
+	$(EXTRACT_SYNC) $(CXX) "$<" -c $(CLIENT_CXXFLAGS) -o "$@"
 $(OBJECT_DIR)/%.o: ./src/%.cpp $(TEST_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
 	@mkdir -p "$(OBJECT_DIR)"
-	$(EXTRACT) "$<" -c $(CLIENT_CXXFLAGS) -o "$@"
+	$(EXTRACT_SYNC) $(CXX) "$<" -c $(CLIENT_CXXFLAGS) -o "$@"
 
 # --------------------------------
 # Library build recipes
@@ -163,7 +166,7 @@ $(LIBRARY_LINK_FILES):
 	@ln -sfv "$(LIBRARY_NAME_FULL)" "$@"
 $(BUILD_DIR)/$(LIBRARY_NAME_FULL): $(TANGLE_OBJECTS)
 	@mkdir -p "$(OBJECT_DIR)"
-	$(CXX) -shared -o "$@" $(TANGLE_OBJECTS) $(LIBRARY_CXXFLAGS) $(LIBRARY_LDFLAGS)
+	$(SYNC) $(CXX) -shared -o "$@" $(TANGLE_OBJECTS) $(LIBRARY_CXXFLAGS) $(LIBRARY_LDFLAGS)
 	@if [[ "$(DEBUG)" != "true" ]]; then \
 	  strip --strip-unneeded "$@"; \
 	fi
@@ -172,7 +175,7 @@ $(BUILD_DIR)/$(LIBRARY_NAME_FULL): $(TANGLE_OBJECTS)
 #Recipe dependencies need to be mirrored in the corresponding lint targets
 $(OBJECT_DIR)/tangle/%.o: ./src/tangle/%.cpp $(TANGLE_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
 	@mkdir -p "$$(dirname $@)"
-	$(EXTRACT) "$<" -c $(LIBRARY_CXXFLAGS) -o "$@"
+	$(EXTRACT_SYNC) $(CXX) "$<" -c $(LIBRARY_CXXFLAGS) -o "$@"
 
 
 # --------------------------------
@@ -185,20 +188,20 @@ $(BUILD_DIR)/compile_commands.json:
 #Recipes should only differ in dependencies
 #include/% recipes are required, since headers can be linted individually
 $(OBJECT_DIR)/include/%.$(DEBUG_LINT_STRING): ./src/include/% .clang-tidy $(TANGLE_INCLUDE_HEADERS_SOURCE)
-	$(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
+	$(SYNC) $(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
 	@mkdir -p "$$(dirname $@)"
 	@touch "$@"
 $(OBJECT_DIR)/tests/%.$(DEBUG_LINT_STRING): ./src/tests/% .clang-tidy $(TEST_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
-	$(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
+	$(SYNC) $(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
 	@mkdir -p "$$(dirname $@)"
 	@touch "$@"
 $(OBJECT_DIR)/%.$(DEBUG_LINT_STRING): ./src/% .clang-tidy $(TEST_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
-	$(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
+	$(SYNC) $(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
 	@mkdir -p "$$(dirname $@)"
 	@touch "$@"
 
 $(OBJECT_DIR)/tangle/%.$(DEBUG_LINT_STRING): ./src/tangle/% .clang-tidy $(TANGLE_HEADERS_SOURCE) $(TANGLE_INCLUDE_HEADERS_SOURCE)
-	$(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
+	$(SYNC) $(TIDY) --quiet -p "$(BUILD_DIR)" "$<"
 	@mkdir -p "$$(dirname $@)"
 	@touch "$@"
 
